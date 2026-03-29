@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { Link } from "wouter";
 import { useEvents } from "@/context/EventContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { CalendarDays, MapPin, Video, Users } from "lucide-react";
@@ -19,6 +20,7 @@ export function OverviewStats() {
         icon: CalendarDays,
         color: "text-primary",
         bg: "bg-primary/10",
+        href: "/events"
       },
       {
         label: "In-Person Sessions",
@@ -26,6 +28,7 @@ export function OverviewStats() {
         icon: MapPin,
         color: "text-green-600",
         bg: "bg-green-100",
+        href: "/in-person"
       },
       {
         label: "Webinars",
@@ -33,6 +36,7 @@ export function OverviewStats() {
         icon: Video,
         color: "text-blue-600",
         bg: "bg-blue-100",
+        href: "/webinars"
       },
       {
         label: "Audience Segments",
@@ -40,6 +44,7 @@ export function OverviewStats() {
         icon: Users,
         color: "text-purple-600",
         bg: "bg-purple-100",
+        href: "/audiences"
       }
     ];
   }, [events, categories]);
@@ -49,17 +54,21 @@ export function OverviewStats() {
       {stats.map((stat, index) => {
         const Icon = stat.icon;
         return (
-          <Card key={index} className="glass-card overflow-hidden">
-            <CardContent className="p-6 flex items-center gap-4">
-              <div className={`p-3 rounded-xl ${stat.bg} ${stat.color} shadow-sm`}>
-                <Icon className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground font-medium mb-1">{stat.label}</p>
-                <p className="text-2xl md:text-3xl font-bold text-foreground font-serif tracking-tight">{stat.value}</p>
-              </div>
-            </CardContent>
-          </Card>
+          <Link key={index} href={stat.href}>
+            <a className="block h-full outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl">
+              <Card className="glass-card overflow-hidden h-full hover:scale-[1.02] hover:shadow-md transition-all cursor-pointer">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className={`p-3 rounded-xl ${stat.bg} ${stat.color} shadow-sm`}>
+                    <Icon className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground font-medium mb-1">{stat.label}</p>
+                    <p className="text-2xl md:text-3xl font-bold text-foreground font-serif tracking-tight">{stat.value}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </a>
+          </Link>
         );
       })}
     </div>

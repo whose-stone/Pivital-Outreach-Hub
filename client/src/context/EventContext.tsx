@@ -8,6 +8,8 @@ interface EventContextType {
   updateEvent: (id: string, event: Partial<OutreachEvent>) => void;
   deleteEvent: (id: string) => void;
   addCategory: (category: string) => void;
+  updateCategory: (oldCategory: string, newCategory: string) => void;
+  deleteCategory: (category: string) => void;
 }
 
 const EventContext = createContext<EventContextType | undefined>(undefined);
@@ -45,8 +47,18 @@ export function EventProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateCategory = (oldCategory: string, newCategory: string) => {
+    setCategories((prev) => prev.map(c => c === oldCategory ? newCategory : c));
+    // Also update any events that used this category
+    setEvents((prev) => prev.map(e => e.category === oldCategory ? { ...e, category: newCategory as EventCategory } : e));
+  };
+
+  const deleteCategory = (category: string) => {
+    setCategories((prev) => prev.filter(c => c !== category));
+  };
+
   return (
-    <EventContext.Provider value={{ events, categories, addEvent, updateEvent, deleteEvent, addCategory }}>
+    <EventContext.Provider value={{ events, categories, addEvent, updateEvent, deleteEvent, addCategory, updateCategory, deleteCategory }}>
       {children}
     </EventContext.Provider>
   );

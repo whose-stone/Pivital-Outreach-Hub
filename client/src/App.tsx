@@ -8,6 +8,9 @@ import { EventProvider } from "@/context/EventContext";
 import CalendarPage from "@/pages/Calendar";
 import EventsPage from "@/pages/Events";
 import SchedulePage from "@/pages/Schedule";
+import TargetAudiencesPage from "@/pages/audience/TargetAudiences";
+import InPersonPage from "@/pages/in-person/InPersonEvents";
+import WebinarsPage from "@/pages/webinars/WebinarsEvents";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -17,6 +20,9 @@ function Router() {
         <Route path="/" component={CalendarPage} />
         <Route path="/events" component={EventsPage} />
         <Route path="/schedule" component={SchedulePage} />
+        <Route path="/audiences" component={TargetAudiencesPage} />
+        <Route path="/in-person" component={InPersonPage} />
+        <Route path="/webinars" component={WebinarsPage} />
         <Route component={NotFound} />
       </Switch>
     </AppLayout>
