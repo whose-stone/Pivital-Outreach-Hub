@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { Calendar, LayoutGrid, List, Users, Video, MapPin, BookOpen, Upload, Bell, ShieldCheck, LogOut } from "lucide-react";
+import { Calendar, LayoutGrid, List, Users, BookOpen, Upload, Bell, ShieldCheck, LogOut } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -38,8 +38,6 @@ export function TopNav() {
     { href: "/", label: "Calendar", icon: Calendar },
     { href: "/events", label: "Events", icon: LayoutGrid },
     { href: "/schedule", label: "Schedule", icon: List },
-    { href: "/in-person", label: "In-Person", icon: MapPin },
-    { href: "/webinars", label: "Webinars", icon: Video },
     { href: "/topics", label: "Topics", icon: BookOpen },
     { href: "/audiences", label: "Audiences", icon: Users },
     { href: "/campaigns", label: "Campaigns", icon: Upload },
