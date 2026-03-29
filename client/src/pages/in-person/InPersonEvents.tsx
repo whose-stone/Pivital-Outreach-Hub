@@ -3,7 +3,7 @@ import { useEvents } from "@/context/EventContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Calendar as CalendarIcon, Clock, Presentation, Edit, Trash2 } from "lucide-react";
+import { MapPin, Calendar as CalendarIcon, Clock, Presentation, Edit, Trash2, Plus } from "lucide-react";
 import { EventFormDialog } from "@/components/forms/EventFormDialog";
 import { EventDetailDialog } from "@/components/events/EventDetailDialog";
 import { OutreachEvent } from "@/data/events";
@@ -28,7 +28,11 @@ export default function InPersonPage() {
             Manage your face-to-face community outreach presentations.
           </p>
         </div>
-        <EventFormDialog />
+        <EventFormDialog triggerAsChild>
+          <Button className="gap-2 bg-green-600 hover:bg-green-700 text-white">
+            <Plus className="h-4 w-4" /> New In-Person Event
+          </Button>
+        </EventFormDialog>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

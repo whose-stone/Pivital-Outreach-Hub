@@ -11,6 +11,7 @@ import SchedulePage from "@/pages/Schedule";
 import TargetAudiencesPage from "@/pages/audience/TargetAudiences";
 import InPersonPage from "@/pages/in-person/InPersonEvents";
 import WebinarsPage from "@/pages/webinars/WebinarsEvents";
+import TopicsPage from "@/pages/topics/TopicsPage";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -23,6 +24,7 @@ function Router() {
         <Route path="/audiences" component={TargetAudiencesPage} />
         <Route path="/in-person" component={InPersonPage} />
         <Route path="/webinars" component={WebinarsPage} />
+        <Route path="/topics" component={TopicsPage} />
         <Route component={NotFound} />
       </Switch>
     </AppLayout>

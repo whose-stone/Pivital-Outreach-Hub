@@ -1,0 +1,145 @@
+{
+  "colorScheme": "light",
+  "fonts": [
+    {
+      "family": "Helvetica",
+      "role": "body"
+    }
+  ],
+  "colors": {
+    "primary": "#00A4A6",
+    "accent": "#00A4A6",
+    "background": "#FFFFFF",
+    "textPrimary": "#111111",
+    "link": "#00112C"
+  },
+  "typography": {
+    "fontFamilies": {
+      "primary": "Helvetica",
+      "heading": "Helvetica"
+    },
+    "fontStacks": {
+      "heading": [
+        "gdsherpa",
+        "Helvetica",
+        "Arial",
+        "sans-serif"
+      ],
+      "body": [
+        "gdsherpa",
+        "Helvetica",
+        "Arial",
+        "sans-serif"
+      ],
+      "paragraph": [
+        "gdsherpa",
+        "Helvetica",
+        "Arial",
+        "sans-serif"
+      ]
+    },
+    "fontSizes": {
+      "h1": "16px",
+      "h2": "56px",
+      "body": "16px"
+    }
+  },
+  "spacing": {
+    "baseUnit": 4,
+    "borderRadius": "8px"
+  },
+  "components": {
+    "input": {
+      "background": "transparent",
+      "textColor": "#111111",
+      "borderColor": null,
+      "borderRadius": "0px",
+      "borderRadiusCorners": {
+        "topLeft": "0px",
+        "topRight": "0px",
+        "bottomRight": "0px",
+        "bottomLeft": "0px"
+      },
+      "shadow": "none"
+    },
+    "buttonPrimary": {
+      "background": "#00A4A6",
+      "textColor": "#FFFFFF",
+      "borderRadius": "10px",
+      "borderRadiusCorners": {
+        "topLeft": "10px",
+        "topRight": "10px",
+        "bottomRight": "0px",
+        "bottomLeft": "0px"
+      },
+      "shadow": "rgb(128, 128, 128) 0px 0px 1px 0px"
+    },
+    "buttonSecondary": {
+      "background": "#111111",
+      "textColor": "#FFFFFF",
+      "borderColor": "#111111",
+      "borderRadius": "6px",
+      "borderRadiusCorners": {
+        "topLeft": "6px",
+        "topRight": "6px",
+        "bottomRight": "6px",
+        "bottomLeft": "6px"
+      },
+      "shadow": "none"
+    }
+  },
+  "images": {
+    "favicon": "File saved at: attached_assets/favicon.png",
+    "ogImage": null
+  },
+  "__llm_logo_reasoning": {
+    "selectedIndex": -1,
+    "reasoning": "No valid brand logo was found that clearly represents 'pivotal.ai'. The candidate provided does not match the brand inferred from the URL and page title.",
+    "confidence": 0.3,
+    "rejected": true,
+    "source": "llm"
+  },
+  "__llm_button_reasoning": {
+    "primary": {
+      "index": 1,
+      "text": "Ask AI",
+      "reasoning": "Button #1 uses the vibrant brand color #00A4A6, which is typically used for primary CTAs. The text 'Ask AI' suggests an action-oriented purpose, making it the primary call-to-action."
+    },
+    "secondary": {
+      "index": 0,
+      "text": "Next",
+      "reasoning": "Button #0 has a different background color (#111111) and serves as a secondary action with the text 'Next', which is less prominent than the primary CTA."
+    },
+    "confidence": 0.95
+  },
+  "personality": {
+    "tone": "professional",
+    "energy": "medium",
+    "targetAudience": "business professionals and tech-savvy individuals"
+  },
+  "designSystem": {
+    "framework": "custom",
+    "componentLibrary": ""
+  },
+  "confidence": {
+    "buttons": 0.95,
+    "colors": 0.9,
+    "overall": 0.925
+  },
+  "__llm_metadata": {
+    "logoSelection": {
+      "llmCalled": true,
+      "llmSucceeded": true,
+      "finalSource": "llm",
+      "rawLogoSelection": {
+        "selectedLogoIndex": -1,
+        "selectedLogoReasoning": "No valid brand logo was found that clearly represents 'pivotal.ai'. The candidate provided does not match the brand inferred from the URL and page title.",
+        "confidence": 0.3
+      }
+    },
+    "buttonClassification": {
+      "llmCalled": true,
+      "llmSucceeded": true
+    }
+  }
+}

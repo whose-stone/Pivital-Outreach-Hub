@@ -3,7 +3,7 @@ import { useEvents } from "@/context/EventContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Video, Calendar as CalendarIcon, Clock, Presentation, Edit, Trash2 } from "lucide-react";
+import { Video, Calendar as CalendarIcon, Clock, Presentation, Edit, Trash2, Plus } from "lucide-react";
 import { EventFormDialog } from "@/components/forms/EventFormDialog";
 import { EventDetailDialog } from "@/components/events/EventDetailDialog";
 import { OutreachEvent } from "@/data/events";
@@ -28,7 +28,11 @@ export default function WebinarsPage() {
             Manage your online and virtual community outreach presentations.
           </p>
         </div>
-        <EventFormDialog />
+        <EventFormDialog triggerAsChild>
+          <Button className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+            <Plus className="h-4 w-4" /> New Webinar
+          </Button>
+        </EventFormDialog>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -28,13 +28,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useEvents } from "@/context/EventContext";
-import { Plus, PlusCircle, Edit2 } from "lucide-react";
+import { Plus, PlusCircle, Edit2, BookOpen } from "lucide-react";
 import { EventFormat, OutreachEvent } from "@/data/events";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 
 const eventSchema = z.object({
   organization: z.string().min(2, "Organization name is required"),
-  topic: z.string().min(2, "Topic is required"),
+  topic: z.string().min(1, "Topic is required"),
+  newTopic: z.string().optional(),
   date: z.string().min(1, "Date is required"),
   time: z.string().min(1, "Time is required"),
   format: z.enum(["in-person", "webinar"]),
@@ -59,8 +61,10 @@ interface EventFormDialogProps {
 export function EventFormDialog({ children, eventToEdit, isOpen: controlledOpen, onOpenChange: controlledOnOpenChange, triggerAsChild = true }: EventFormDialogProps) {
   const [internalOpen, setInternalOpen] = useState(false);
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
-  const { categories, addEvent, updateEvent, addCategory } = useEvents();
+  const [isCreatingTopic, setIsCreatingTopic] = useState(false);
+  const { categories, topics, addEvent, updateEvent, addCategory, addTopic } = useEvents();
   const { toast } = useToast();
+  const [location] = useLocation();
 
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : internalOpen;
@@ -75,6 +79,7 @@ export function EventFormDialog({ children, eventToEdit, isOpen: controlledOpen,
     if (!newOpen) {
       setTimeout(() => form.reset(), 200);
       setIsCreatingCategory(false);
+      setIsCreatingTopic(false);
     }
   };
 
@@ -83,6 +88,7 @@ export function EventFormDialog({ children, eventToEdit, isOpen: controlledOpen,
     defaultValues: {
       organization: "",
       topic: "",
+      newTopic: "",
       date: new Date().toISOString().split('T')[0],
       time: "10:00 AM - 11:00 AM",
       format: "in-person",
@@ -101,6 +107,7 @@ export function EventFormDialog({ children, eventToEdit, isOpen: controlledOpen,
       form.reset({
         organization: eventToEdit.organization,
         topic: eventToEdit.topic,
+        newTopic: "",
         date: eventToEdit.date,
         time: eventToEdit.time,
         format: eventToEdit.format,
@@ -111,19 +118,27 @@ export function EventFormDialog({ children, eventToEdit, isOpen: controlledOpen,
         callToAction: eventToEdit.callToAction,
         executionNotes: eventToEdit.executionNotes || "",
       });
-      // Ensure category dropdown works correctly by checking if it's a known category
+      // Ensure dropdowns work correctly by checking if values are known
       if (!categories.includes(eventToEdit.category)) {
          addCategory(eventToEdit.category);
       }
+      if (!topics.includes(eventToEdit.topic)) {
+         addTopic(eventToEdit.topic);
+      }
       setIsCreatingCategory(false);
+      setIsCreatingTopic(false);
     } else if (!eventToEdit && open) {
+      // Setup defaults based on current page
+      const defaultFormat = location === '/webinars' ? 'webinar' : 'in-person';
+      
       // Reset if opened for a new event
       form.reset({
         organization: "",
         topic: "",
+        newTopic: "",
         date: new Date().toISOString().split('T')[0],
         time: "10:00 AM - 11:00 AM",
-        format: "in-person",
+        format: defaultFormat,
         venue: "",
         category: "",
         newCategory: "",
@@ -132,19 +147,25 @@ export function EventFormDialog({ children, eventToEdit, isOpen: controlledOpen,
         executionNotes: "",
       });
     }
-  }, [eventToEdit, open, form, categories, addCategory]);
+  }, [eventToEdit, open, form, categories, topics, addCategory, addTopic, location]);
 
   const onSubmit = (data: EventFormValues) => {
     let finalCategory = data.category;
+    let finalTopic = data.topic;
 
     if (isCreatingCategory && data.newCategory) {
       finalCategory = data.newCategory;
       addCategory(data.newCategory);
     }
+    
+    if (isCreatingTopic && data.newTopic) {
+      finalTopic = data.newTopic;
+      addTopic(data.newTopic);
+    }
 
     const eventData = {
       organization: data.organization,
-      topic: data.topic,
+      topic: finalTopic,
       date: data.date,
       time: data.time,
       format: data.format as EventFormat,
@@ -171,6 +192,12 @@ export function EventFormDialog({ children, eventToEdit, isOpen: controlledOpen,
     
     handleOpenChange(false);
   };
+
+  // Only show the Create New Event button on the calendar, events, schedule, in-person, and webinars pages
+  // Note: the button inside topics/audiences will be their own custom buttons, so we hide this default one there
+  if (!isControlled && !children && (location === '/topics' || location === '/audiences')) {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -206,19 +233,58 @@ export function EventFormDialog({ children, eventToEdit, isOpen: controlledOpen,
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="topic"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Presentation Topic</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., AI Fundamentals" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <FormLabel>Training Topic</FormLabel>
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-6 px-2 text-xs text-primary"
+                    onClick={() => setIsCreatingTopic(!isCreatingTopic)}
+                  >
+                    {isCreatingTopic ? "Select Existing" : <><PlusCircle className="w-3 h-3 mr-1" /> New Topic</>}
+                  </Button>
+                </div>
+                {isCreatingTopic ? (
+                  <FormField
+                    control={form.control}
+                    name="newTopic"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input placeholder="Enter new training topic..." {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ) : (
+                  <FormField
+                    control={form.control}
+                    name="topic"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select topic..." />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent className="z-[110]">
+                            {topics.map((t) => (
+                              <SelectItem key={t} value={t}>{t}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 )}
-              />
+              </div>
+
               <FormField
                 control={form.control}
                 name="date"
