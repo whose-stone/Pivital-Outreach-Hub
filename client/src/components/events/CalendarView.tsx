@@ -144,11 +144,13 @@ export function CalendarView() {
         )}
       </div>
 
-      <EventDetailDialog 
-        event={selectedEvent} 
-        isOpen={!!selectedEvent} 
-        onClose={() => setSelectedEvent(null)} 
-      />
+      {selectedEvent && (
+        <EventDetailDialog 
+          event={selectedEvent} 
+          isOpen={!!selectedEvent} 
+          onClose={() => setSelectedEvent(null)} 
+        />
+      )}
     </div>
   );
 }

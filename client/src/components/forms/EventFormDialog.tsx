@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -28,8 +28,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useEvents } from "@/context/EventContext";
-import { Plus, PlusCircle } from "lucide-react";
-import { EventFormat } from "@/data/events";
+import { Plus, PlusCircle, Edit2 } from "lucide-react";
+import { EventFormat, OutreachEvent } from "@/data/events";
 import { useToast } from "@/hooks/use-toast";
 
 const eventSchema = z.object({
@@ -48,11 +48,35 @@ const eventSchema = z.object({
 
 type EventFormValues = z.infer<typeof eventSchema>;
 
-export function EventFormDialog({ children }: { children?: React.ReactNode }) {
-  const [open, setOpen] = useState(false);
+interface EventFormDialogProps {
+  children?: React.ReactNode;
+  eventToEdit?: OutreachEvent | null;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  triggerAsChild?: boolean;
+}
+
+export function EventFormDialog({ children, eventToEdit, isOpen: controlledOpen, onOpenChange: controlledOnOpenChange, triggerAsChild = true }: EventFormDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
-  const { categories, addEvent, addCategory } = useEvents();
+  const { categories, addEvent, updateEvent, addCategory } = useEvents();
   const { toast } = useToast();
+
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!isControlled) {
+      setInternalOpen(newOpen);
+    }
+    if (controlledOnOpenChange) {
+      controlledOnOpenChange(newOpen);
+    }
+    if (!newOpen) {
+      setTimeout(() => form.reset(), 200);
+      setIsCreatingCategory(false);
+    }
+  };
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),
@@ -71,6 +95,45 @@ export function EventFormDialog({ children }: { children?: React.ReactNode }) {
     },
   });
 
+  // Update form when eventToEdit changes
+  useEffect(() => {
+    if (eventToEdit && open) {
+      form.reset({
+        organization: eventToEdit.organization,
+        topic: eventToEdit.topic,
+        date: eventToEdit.date,
+        time: eventToEdit.time,
+        format: eventToEdit.format,
+        venue: eventToEdit.venue,
+        category: eventToEdit.category,
+        newCategory: "",
+        summary: eventToEdit.summary,
+        callToAction: eventToEdit.callToAction,
+        executionNotes: eventToEdit.executionNotes || "",
+      });
+      // Ensure category dropdown works correctly by checking if it's a known category
+      if (!categories.includes(eventToEdit.category)) {
+         addCategory(eventToEdit.category);
+      }
+      setIsCreatingCategory(false);
+    } else if (!eventToEdit && open) {
+      // Reset if opened for a new event
+      form.reset({
+        organization: "",
+        topic: "",
+        date: new Date().toISOString().split('T')[0],
+        time: "10:00 AM - 11:00 AM",
+        format: "in-person",
+        venue: "",
+        category: "",
+        newCategory: "",
+        summary: "",
+        callToAction: "",
+        executionNotes: "",
+      });
+    }
+  }, [eventToEdit, open, form, categories, addCategory]);
+
   const onSubmit = (data: EventFormValues) => {
     let finalCategory = data.category;
 
@@ -79,7 +142,7 @@ export function EventFormDialog({ children }: { children?: React.ReactNode }) {
       addCategory(data.newCategory);
     }
 
-    const newEvent = {
+    const eventData = {
       organization: data.organization,
       topic: data.topic,
       date: data.date,
@@ -92,28 +155,40 @@ export function EventFormDialog({ children }: { children?: React.ReactNode }) {
       executionNotes: data.executionNotes || "",
     };
 
-    addEvent(newEvent);
-    toast({
-      title: "Event Created",
-      description: "The new outreach event has been successfully scheduled.",
-    });
-    setOpen(false);
-    form.reset();
-    setIsCreatingCategory(false);
+    if (eventToEdit) {
+      updateEvent(eventToEdit.id, eventData);
+      toast({
+        title: "Event Updated",
+        description: "The outreach event has been successfully updated.",
+      });
+    } else {
+      addEvent(eventData);
+      toast({
+        title: "Event Created",
+        description: "The new outreach event has been successfully scheduled.",
+      });
+    }
+    
+    handleOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {children || (
-          <Button className="gap-2">
-            <Plus className="h-4 w-4" /> New Event
-          </Button>
-        )}
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      {!isControlled && (
+        <DialogTrigger asChild={triggerAsChild}>
+          {children || (
+            <Button className="gap-2">
+              {eventToEdit ? <Edit2 className="h-4 w-4" /> : <Plus className="h-4 w-4" />} 
+              {eventToEdit ? "Edit Event" : "New Event"}
+            </Button>
+          )}
+        </DialogTrigger>
+      )}
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto z-[100]">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-serif">Create Outreach Event</DialogTitle>
+          <DialogTitle className="text-2xl font-serif">
+            {eventToEdit ? "Edit Outreach Event" : "Create Outreach Event"}
+          </DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-4">
@@ -176,13 +251,13 @@ export function EventFormDialog({ children }: { children?: React.ReactNode }) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Format</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a format" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="z-[110]">
                         <SelectItem value="in-person">In-Person</SelectItem>
                         <SelectItem value="webinar">Webinar</SelectItem>
                       </SelectContent>
@@ -239,13 +314,13 @@ export function EventFormDialog({ children }: { children?: React.ReactNode }) {
                   name="category"
                   render={({ field }) => (
                     <FormItem>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select target audience..." />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className="z-[110]">
                           {categories.map((cat) => (
                             <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                           ))}
@@ -309,10 +384,10 @@ export function EventFormDialog({ children }: { children?: React.ReactNode }) {
             />
 
             <div className="flex justify-end gap-3 pt-4">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit">Schedule Event</Button>
+              <Button type="submit">{eventToEdit ? "Save Changes" : "Schedule Event"}</Button>
             </div>
           </form>
         </Form>
