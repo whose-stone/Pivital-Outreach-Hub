@@ -43,6 +43,11 @@ export type Event = typeof events.$inferSelect;
 export const audiences = pgTable("audiences", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull().unique(),
+  phone: text("phone").default(""),
+  email: text("email").default(""),
+  address: text("address").default(""),
+  mission: text("mission").default(""),
+  clientType: text("client_type").default(""),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

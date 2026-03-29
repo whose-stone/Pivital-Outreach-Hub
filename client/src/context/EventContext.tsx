@@ -23,6 +23,11 @@ export interface OutreachEvent {
 export interface Audience {
   id: string;
   name: string;
+  phone?: string | null;
+  email?: string | null;
+  address?: string | null;
+  mission?: string | null;
+  clientType?: string | null;
   createdAt?: string;
 }
 
@@ -62,8 +67,8 @@ interface EventContextType {
   updateEvent: (id: string, event: Partial<Omit<OutreachEvent, "id" | "createdAt">>) => Promise<void>;
   deleteEvent: (id: string) => Promise<void>;
 
-  addAudience: (name: string) => Promise<void>;
-  updateAudience: (id: string, name: string) => Promise<void>;
+  addAudience: (data: Omit<Audience, "id" | "createdAt">) => Promise<void>;
+  updateAudience: (id: string, data: Partial<Omit<Audience, "id" | "createdAt">>) => Promise<void>;
   deleteAudience: (id: string) => Promise<void>;
 
   addTopic: (name: string) => Promise<void>;
@@ -118,15 +123,17 @@ export function EventProvider({ children }: { children: ReactNode }) {
   });
 
   // ─── Audience mutations ────────────────────────────────────────────────────
+  type AudienceData = Omit<Audience, "id" | "createdAt">;
+
   const createAudienceMut = useMutation({
-    mutationFn: (name: string) =>
-      apiRequest<Audience>("/api/audiences", { method: "POST", body: JSON.stringify({ name }) }),
+    mutationFn: (data: AudienceData) =>
+      apiRequest<Audience>("/api/audiences", { method: "POST", body: JSON.stringify(data) }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["/api/audiences"] }),
   });
 
   const updateAudienceMut = useMutation({
-    mutationFn: ({ id, name }: { id: string; name: string }) =>
-      apiRequest<Audience>(`/api/audiences/${id}`, { method: "PATCH", body: JSON.stringify({ name }) }),
+    mutationFn: ({ id, data }: { id: string; data: Partial<AudienceData> }) =>
+      apiRequest<Audience>(`/api/audiences/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["/api/audiences"] }),
   });
 
@@ -160,11 +167,11 @@ export function EventProvider({ children }: { children: ReactNode }) {
   const categories = audiencesData.map((a) => a.name);
 
   // Legacy by-name helpers for old code that uses category names
-  const addCategory = (name: string) => createAudienceMut.mutateAsync(name);
+  const addCategory = (name: string) => createAudienceMut.mutateAsync({ name });
   const updateCategory = (oldName: string, newName: string) => {
     const aud = audiencesData.find((a) => a.name === oldName);
     if (!aud) return Promise.resolve();
-    return updateAudienceMut.mutateAsync({ id: aud.id, name: newName });
+    return updateAudienceMut.mutateAsync({ id: aud.id, data: { name: newName } });
   };
   const deleteCategory = (name: string) => {
     const aud = audiencesData.find((a) => a.name === name);
@@ -186,8 +193,8 @@ export function EventProvider({ children }: { children: ReactNode }) {
       updateEvent: (id, data) => updateEventMut.mutateAsync({ id, data }),
       deleteEvent: (id) => deleteEventMut.mutateAsync(id),
 
-      addAudience: (name) => createAudienceMut.mutateAsync(name),
-      updateAudience: (id, name) => updateAudienceMut.mutateAsync({ id, name }),
+      addAudience: (data) => createAudienceMut.mutateAsync(data),
+      updateAudience: (id, data) => updateAudienceMut.mutateAsync({ id, data }),
       deleteAudience: (id) => deleteAudienceMut.mutateAsync(id),
 
       addTopic: (name) => createTopicMut.mutateAsync(name),
