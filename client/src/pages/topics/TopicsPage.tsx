@@ -53,7 +53,11 @@ export default function TopicsPage() {
   };
 
   const handleEdit = async () => {
-    if (!newTopicName.trim() || !currentTopic || newTopicName.trim() === currentTopic.name) return;
+    if (!newTopicName.trim() || !currentTopic) return;
+    if (newTopicName.trim() === currentTopic.name) {
+      setIsEditOpen(false);
+      return;
+    }
     
     if (topics.some((t) => t.name === newTopicName.trim())) {
       toast({ title: "Topic exists", description: "A training topic with this name already exists.", variant: "destructive" });
