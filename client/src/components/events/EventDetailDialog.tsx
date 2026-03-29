@@ -54,13 +54,13 @@ export function EventDetailDialog({ event, isOpen, onClose }: EventDetailDialogP
   return (
     <>
       <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent className="max-w-2xl bg-white/95 backdrop-blur-xl border-white/20 shadow-2xl p-0 sm:rounded-2xl max-h-[90vh] flex flex-col z-50">
-          <div className="bg-gradient-to-r from-primary/10 to-blue-400/10 p-6 md:p-8 border-b border-white/20 shrink-0 relative">
+        <DialogContent className="max-w-2xl bg-card/95 backdrop-blur-xl border-white/10 shadow-2xl p-0 sm:rounded-2xl max-h-[90vh] flex flex-col z-50">
+          <div className="bg-gradient-to-r from-primary/15 to-[#004435]/60 p-6 md:p-8 border-b border-white/20 shrink-0 relative">
             <div className="absolute top-4 right-4 flex gap-2 z-10">
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="h-8 w-8 bg-white/50 hover:bg-white/80 border-white/40 shadow-sm"
+                className="h-8 w-8 bg-white/10 hover:bg-white/20 border-white/10 shadow-sm"
                 onClick={(e) => {
                   e.preventDefault();
                   onClose();
@@ -72,7 +72,7 @@ export function EventDetailDialog({ event, isOpen, onClose }: EventDetailDialogP
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="h-8 w-8 bg-white/50 hover:bg-red-50 hover:text-red-600 border-white/40 hover:border-red-200 shadow-sm"
+                className="h-8 w-8 bg-white/10 hover:bg-red-500/20 hover:text-red-400 border-white/10 hover:border-red-500/30 shadow-sm"
                 onClick={(e) => {
                   e.preventDefault();
                   setIsDeleteAlertOpen(true);
@@ -85,14 +85,14 @@ export function EventDetailDialog({ event, isOpen, onClose }: EventDetailDialogP
             <div className="flex items-start justify-between gap-4 mb-4 pr-16">
               <Badge 
                 variant="secondary" 
-                className="bg-white/60 hover:bg-white/80 text-primary border-none shadow-sm backdrop-blur-sm"
+                className="bg-primary/20 hover:bg-primary/30 text-primary border-none shadow-sm backdrop-blur-sm"
               >
                 {event.category}
               </Badge>
               <Badge 
                 variant="outline" 
                 className={`border-none shadow-sm backdrop-blur-sm ${
-                  isWebinar ? "bg-blue-100/80 text-blue-700" : "bg-green-100/80 text-green-700"
+                  isWebinar ? "bg-blue-500/20 text-blue-300" : "bg-[#00BA97]/20 text-[#00E6BA]"
                 }`}
               >
                 {isWebinar ? <Video className="w-3 h-3 mr-1" /> : <MapPin className="w-3 h-3 mr-1" />}
@@ -110,7 +110,7 @@ export function EventDetailDialog({ event, isOpen, onClose }: EventDetailDialogP
 
           <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8">
             {/* Quick Details */}
-            <div className="flex flex-wrap gap-6 p-4 rounded-xl bg-slate-50/50 border border-slate-100">
+            <div className="flex flex-wrap gap-6 p-4 rounded-xl bg-white/5 border border-white/10">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-primary/10 text-primary">
                   <Calendar className="w-5 h-5" />

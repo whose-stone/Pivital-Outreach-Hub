@@ -1,0 +1,243 @@
+Primary Typeface
+Inter (or Inter Variable)
+
+Clean, modern, highly legible
+
+Works well for technical and enterprise audiences
+
+Matches the tone of “engineering-first” systems
+
+Type Scale
+H1: 56–72px, bold
+
+H2: 36–48px, semibold
+
+H3: 24–32px, semibold
+
+Body: 16–18px, regular
+
+Mono: JetBrains Mono or IBM Plex Mono for code, schemas, and RAG diagrams
+
+🧱 5. Layout & Component System (Agentic Web Development)
+Section Structure
+Your deck uses a consistent pattern:
+
+Bold headline
+
+Short, high-impact subhead
+
+Three to four supporting bullets
+
+A diagram or visual anchor
+
+Example from the deck:
+
+“One Intelligent Agent. Every HR Answer. Zero Hallucinations.”
+“Pivital builds the data infrastructure that makes AI trustworthy in production.”
+
+This should be mirrored on pivital.ai.
+
+Spacing
+120px vertical spacing between major sections
+
+48px between header and body
+
+24px between paragraphs
+
+16px between UI elements
+
+Card Components
+Use cards for:
+
+Phases
+
+Deliverables
+
+Modules
+
+Pricing
+
+Cards should use:
+
+Dark backgrounds (#001F17 or #004435)
+
+Thin mint borders (#B2FFE6)
+
+Rounded corners (6–8px)
+
+Subtle glow on hover (mint or teal)
+
+🧭 6. Tone & Voice
+Voice Principles
+Direct (“We build the data backbone.”)
+
+Technical but human
+
+Confident, not hype-driven
+
+Operationally grounded
+
+No fluff, no buzzwords
+
+Writing Style
+Short sentences
+
+Declarative statements
+
+Engineering metaphors
+
+Operational metaphors (“5 AM rush,” “always-on,” “zero ambiguity”)
+
+Examples from the deck:
+
+“Deployment is not a flip of a switch.”
+“When the brain glitches at 5 AM, Pivital fixes the plumbing.”
+
+🧩 7. Messaging Framework
+Tagline Options
+Engineering the Backbone of Intelligent Automation
+
+AI That Works at 5 AM
+
+Zero-Hallucination AI Infrastructure
+
+Correctness First. Reliability Always.
+
+Agentic Systems Built for the Real World
+
+Value Pillars
+Correctness First
+
+Operational Reliability
+
+Zero-Hallucination Architecture
+
+Scalable Infrastructure
+
+Transparent, Auditable Systems
+
+🧬 8. Agentic Web Development Identity
+This is where your brand becomes differentiated.
+
+Definition
+Agentic Web Development =
+Websites that are not static pages, but operational agents connected to your data, policies, and infrastructure.
+
+Core Principles
+Every page is a live interface to your data systems
+
+Every component is backed by retrieval, validation, and policy logic
+
+Every interaction is grounded, auditable, and correct
+
+The website becomes a control plane, not a brochure
+
+Visual Cues
+Node networks
+
+Data flow diagrams
+
+RAG pipelines
+
+Policy validation flows
+
+“Blueprint” and “infrastructure” motifs
+
+🧱 9. Web Components for pivital.ai
+Hero Section
+Dark background (#001F17)
+
+Large neural “P” symbol
+
+Headline: Engineering the Backbone of Intelligent Automation
+
+Subhead: Agentic Web Development & AI Infrastructure
+
+CTA: Build Your Blueprint
+
+Phase Cards
+Use the structure from your deck:
+
+“Phase 1 · Discovery & Blueprint”
+“Source mapping, data audit, business rule documentation…”
+
+Diagram Style
+Thin mint lines
+
+Rounded nodes
+
+Soft teal glows
+
+Minimalist, engineering-forward
+
+📐 10. Logo Usage Rules
+Do
+Use on dark backgrounds
+
+Maintain gradient integrity
+
+Keep padding equal to symbol height
+
+Use white “PIVITAL” text
+
+Don’t
+Recolor the gradient
+
+Place on busy backgrounds
+
+Stretch or warp
+
+Add drop shadows
+
+📄 11. Brand Applications
+For Web
+Dark UI
+
+High contrast mint accents
+
+Animated node networks
+
+RAG diagrams
+
+Phase cards
+
+Pricing tables
+
+For Slide Decks
+Use the same spacing and card system
+
+Keep backgrounds dark
+
+Use mint for emphasis
+
+Use the neural “P” as a watermark
+
+For Print
+Use solid teal or black backgrounds
+
+Avoid gradients except in the logo
+
+📦 12. Deliverables You Can Share Internally
+This guide can be exported into:
+
+A PDF brand book
+
+A Notion brand page
+
+A Figma brand library
+
+A developer-facing design system
+
+If you want, I can generate:
+
+A full Figma-ready component library
+
+A CSS/SCSS design token file
+
+A PDF brand book
+
+A homepage wireframe using this system
+
+A full pivital.ai redesign using this brand identity
+
+Just tell me which direction you want to take next.

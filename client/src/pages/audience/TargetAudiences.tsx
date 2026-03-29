@@ -234,7 +234,7 @@ export default function TargetAudiencesPage() {
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-8">
         <div className="flex flex-col gap-2">
           <h1 className="text-4xl font-serif font-bold tracking-tight text-foreground">
-            Target <span className="text-purple-600">Audiences</span>
+            Target <span className="text-purple-400">Audiences</span>
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl">
             Track your outreach contacts — organizations, clients, and community partners.
@@ -261,7 +261,7 @@ export default function TargetAudiencesPage() {
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    <div className="p-2 rounded-lg bg-purple-100 text-purple-600 shrink-0">
+                    <div className="p-2 rounded-lg bg-purple-500/20 text-purple-400 shrink-0">
                       <Building2 className="h-5 w-5" />
                     </div>
                     <div className="min-w-0">
@@ -269,7 +269,7 @@ export default function TargetAudiencesPage() {
                         {audience.name}
                       </CardTitle>
                       {audience.clientType && (
-                        <span className="inline-block text-xs bg-purple-100 text-purple-700 rounded-full px-2 py-0.5 mt-1 font-medium">
+                        <span className="inline-block text-xs bg-purple-500/20 text-purple-300 rounded-full px-2 py-0.5 mt-1 font-medium">
                           {audience.clientType}
                         </span>
                       )}
@@ -335,7 +335,7 @@ export default function TargetAudiencesPage() {
                   </div>
                 )}
 
-                <div className="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between">
+                <div className="mt-auto pt-3 border-t border-white/10 flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <Users className="h-4 w-4 text-purple-500" />
                     <span className="font-semibold text-foreground">{audienceEvents.length}</span>
@@ -348,9 +348,9 @@ export default function TargetAudiencesPage() {
         })}
 
         {audiences.length === 0 && (
-          <div className="col-span-full py-16 text-center text-muted-foreground bg-white/40 rounded-xl border border-dashed border-slate-300">
-            <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-4">
-              <Users className="w-8 h-8 text-purple-600" />
+          <div className="col-span-full py-16 text-center text-muted-foreground bg-white/5 rounded-xl border border-dashed border-white/15">
+            <div className="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mx-auto mb-4">
+              <Users className="w-8 h-8 text-purple-400" />
             </div>
             <p className="text-lg font-medium">No audience segments yet</p>
             <p className="text-sm">Click "New Audience" to add your first contact.</p>

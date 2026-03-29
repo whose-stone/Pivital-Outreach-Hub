@@ -26,24 +26,24 @@ export function OverviewStats() {
         label: "In-Person Sessions",
         value: inPerson,
         icon: MapPin,
-        color: "text-green-600",
-        bg: "bg-green-100",
+        color: "text-[#00E6BA]",
+        bg: "bg-[#00BA97]/20",
         href: "/in-person"
       },
       {
         label: "Webinars",
         value: webinar,
         icon: Video,
-        color: "text-blue-600",
-        bg: "bg-blue-100",
+        color: "text-blue-400",
+        bg: "bg-blue-500/20",
         href: "/webinars"
       },
       {
         label: "Audience Segments",
         value: segments,
         icon: Users,
-        color: "text-purple-600",
-        bg: "bg-purple-100",
+        color: "text-purple-400",
+        bg: "bg-purple-500/20",
         href: "/audiences"
       }
     ];

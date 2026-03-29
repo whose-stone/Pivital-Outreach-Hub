@@ -16,7 +16,7 @@ export default function SchedulePage() {
         <EventFormDialog />
       </div>
       
-      <div className="bg-white/40 rounded-3xl p-6 md:p-8 border border-white/40 shadow-sm backdrop-blur-sm">
+      <div className="bg-white/5 rounded-3xl p-6 md:p-8 border border-white/10 shadow-sm backdrop-blur-sm">
         <ScheduleView />
       </div>
     </div>

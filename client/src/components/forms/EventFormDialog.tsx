@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -223,7 +224,7 @@ export function EventFormDialog({ children, eventToEdit, isOpen: controlledOpen,
               
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <FormLabel>Training Topic</FormLabel>
+                  <Label className="text-sm font-medium">Training Topic</Label>
                   <Button 
                     type="button" 
                     variant="ghost" 
@@ -334,9 +335,9 @@ export function EventFormDialog({ children, eventToEdit, isOpen: controlledOpen,
               />
             </div>
 
-            <div className="space-y-4 p-4 bg-slate-50/50 rounded-xl border border-slate-100">
+            <div className="space-y-4 p-4 bg-white/5 rounded-xl border border-white/10">
               <div className="flex items-center justify-between">
-                <FormLabel className="text-base font-semibold">Target Audience / Category</FormLabel>
+                <Label className="text-base font-semibold">Target Audience / Category</Label>
                 <Button 
                   type="button" 
                   variant="ghost" 

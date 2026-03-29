@@ -61,7 +61,7 @@ export default function InPersonPage() {
               </div>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col pt-2">
-              <div className="flex flex-col gap-2 text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100 mb-4">
+              <div className="flex flex-col gap-2 text-sm text-muted-foreground bg-white/5 p-3 rounded-lg border border-white/10 mb-4">
                 <div className="flex items-center gap-2">
                   <CalendarIcon className="w-4 h-4 text-green-600/70" />
                   {new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', timeZone: 'UTC' })}
@@ -85,8 +85,8 @@ export default function InPersonPage() {
           </Card>
         ))}
         {inPersonEvents.length === 0 && (
-          <div className="col-span-full py-16 text-center text-muted-foreground bg-white/40 rounded-xl border border-dashed border-slate-300">
-            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+          <div className="col-span-full py-16 text-center text-muted-foreground bg-white/5 rounded-xl border border-dashed border-white/15">
+            <div className="w-16 h-16 rounded-full bg-[#00BA97]/20 flex items-center justify-center mx-auto mb-4">
               <MapPin className="w-8 h-8 text-green-600" />
             </div>
             <p className="text-lg font-medium">No in-person events scheduled</p>

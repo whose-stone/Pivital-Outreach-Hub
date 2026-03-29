@@ -113,7 +113,7 @@ export default function TopicsPage() {
             <Card key={topic.id} className="glass-card flex flex-col h-full border-t-4" style={{ borderTopColor: 'hsl(38 92% 50%)' }}>
               <CardHeader className="pb-3 flex flex-row items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="p-2 rounded-lg bg-amber-100 text-amber-600">
+                  <div className="p-2 rounded-lg bg-amber-500/20 text-amber-400">
                     <BookOpen className="h-5 w-5" />
                   </div>
                   <CardTitle className="text-xl font-serif">{topic.name}</CardTitle>
@@ -125,7 +125,7 @@ export default function TopicsPage() {
                   <span className="text-muted-foreground ml-2">Planned Events</span>
                 </div>
                 <div className="space-y-2 mt-auto">
-                  <div className="flex justify-end gap-2 pt-4 border-t border-slate-100">
+                  <div className="flex justify-end gap-2 pt-4 border-t border-white/10">
                     <Button variant="outline" size="sm" onClick={() => openEdit(topic)}>
                       <Edit className="h-4 w-4 mr-1" /> Edit
                     </Button>
@@ -139,8 +139,8 @@ export default function TopicsPage() {
           );
         })}
         {topics.length === 0 && (
-          <div className="col-span-full py-16 text-center text-muted-foreground bg-white/40 rounded-xl border border-dashed border-slate-300">
-            <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
+          <div className="col-span-full py-16 text-center text-muted-foreground bg-white/5 rounded-xl border border-dashed border-white/15">
+            <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto mb-4">
               <BookOpen className="w-8 h-8 text-amber-600" />
             </div>
             <p className="text-lg font-medium">No training topics yet</p>

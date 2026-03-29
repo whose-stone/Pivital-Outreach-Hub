@@ -43,7 +43,7 @@ export function CalendarView() {
             mode="single"
             selected={date}
             onSelect={setDate}
-            className="w-full h-full max-w-full rounded-xl border border-white/40 bg-white/50 p-4"
+            className="w-full h-full max-w-full rounded-xl border border-white/10 bg-white/5 p-4"
             classNames={{
               months: "w-full",
               month: "w-full space-y-4",
@@ -78,7 +78,7 @@ export function CalendarView() {
                           <div 
                             key={i} 
                             className={`w-1.5 h-1.5 rounded-full ${
-                              props.activeModifiers.selected ? 'bg-white' : 'bg-primary'
+                              props.activeModifiers.selected ? 'bg-primary' : 'bg-primary'
                             }`}
                           />
                         ))}
@@ -134,8 +134,8 @@ export function CalendarView() {
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center p-8 text-center bg-white/40 rounded-xl border border-dashed border-white/60 h-48">
-            <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3">
+          <div className="flex flex-col items-center justify-center p-8 text-center bg-white/5 rounded-xl border border-dashed border-white/15 h-48">
+            <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-3">
               <Calendar className="w-6 h-6 text-slate-400" />
             </div>
             <p className="text-slate-500 font-medium">No events scheduled</p>

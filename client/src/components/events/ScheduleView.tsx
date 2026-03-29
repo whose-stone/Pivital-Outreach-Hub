@@ -30,7 +30,7 @@ export function ScheduleView() {
   return (
     <div className="space-y-8 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
       {Object.entries(groupedEvents).length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground bg-white/40 rounded-xl border border-dashed border-slate-300">
+        <div className="text-center py-12 text-muted-foreground bg-white/5 rounded-xl border border-dashed border-white/15">
           <p className="text-lg font-medium">No events scheduled</p>
           <p className="text-sm">Create a new event to see it on the schedule.</p>
         </div>
@@ -39,7 +39,7 @@ export function ScheduleView() {
           <div key={monthYear} className="space-y-4">
             <div className="flex items-center gap-4">
               <h2 className="text-2xl font-serif font-bold text-foreground">{monthYear}</h2>
-              <div className="h-px bg-white/40 flex-1"></div>
+              <div className="h-px bg-white/10 flex-1"></div>
             </div>
             
             <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-primary/20 before:via-primary/20 before:to-transparent">
@@ -68,7 +68,7 @@ export function ScheduleView() {
                             <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20">
                               {event.category}
                             </Badge>
-                            <Badge variant="outline" className="text-xs uppercase border-slate-200">
+                            <Badge variant="outline" className="text-xs uppercase border-white/10">
                               {event.format === "webinar" ? (
                                 <span className="flex items-center text-blue-600"><Video className="w-3 h-3 mr-1" /> Webinar</span>
                               ) : (
@@ -84,7 +84,7 @@ export function ScheduleView() {
                             {event.organization}
                           </p>
                           
-                          <div className="flex flex-col gap-2 text-sm text-slate-600 bg-slate-50/50 p-3 rounded-lg border border-slate-100">
+                          <div className="flex flex-col gap-2 text-sm text-muted-foreground bg-white/5 p-3 rounded-lg border border-white/10">
                             <div className="flex items-center gap-2">
                               <Calendar className="w-4 h-4 text-primary/60" />
                               {date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', timeZone: 'UTC' })}

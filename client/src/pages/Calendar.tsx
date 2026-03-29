@@ -20,7 +20,7 @@ export default function CalendarPage() {
       
       <OverviewStats />
       
-      <div className="bg-white/40 rounded-2xl p-1 md:p-4 border border-white/40 shadow-sm backdrop-blur-sm">
+      <div className="bg-white/5 rounded-2xl p-1 md:p-4 border border-white/10 shadow-sm backdrop-blur-sm">
         <CalendarView />
       </div>
     </div>

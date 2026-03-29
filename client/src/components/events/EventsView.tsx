@@ -28,12 +28,12 @@ export function EventsView() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center bg-white/50 p-4 rounded-xl border border-white/20 shadow-sm backdrop-blur-md">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center bg-white/5 p-4 rounded-xl border border-white/10 shadow-sm backdrop-blur-md">
         <div className="relative flex-1 max-w-md w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input 
             placeholder="Search events or organizations..." 
-            className="pl-9 bg-white/80 border-white/40 focus-visible:ring-primary/20"
+            className="pl-9 bg-white/5 border-white/10 focus-visible:ring-primary/20"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -41,7 +41,7 @@ export function EventsView() {
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <Filter className="h-4 w-4 text-muted-foreground" />
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="w-[180px] bg-white/80 border-white/40">
+            <SelectTrigger className="w-[180px] bg-white/5 border-white/10">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent>
@@ -104,7 +104,7 @@ export function EventsView() {
           </Card>
         ))}
         {filteredEvents.length === 0 && (
-          <div className="col-span-full py-12 text-center text-muted-foreground bg-white/40 rounded-xl border border-dashed border-slate-300">
+          <div className="col-span-full py-12 text-center text-muted-foreground bg-white/5 rounded-xl border border-dashed border-white/15">
             <p className="text-lg font-medium">No events found</p>
             <p className="text-sm">Try adjusting your search or filters, or create a new event.</p>
           </div>
