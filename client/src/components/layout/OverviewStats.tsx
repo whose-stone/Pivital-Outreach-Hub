@@ -18,16 +18,16 @@ export function OverviewStats() {
         label: "Planned Events",
         value: total,
         icon: CalendarDays,
-        color: "text-primary",
-        bg: "bg-primary/10",
+        color: "text-[#00E6BA]",
+        bg: "bg-[#00E6BA]/15",
         href: "/events"
       },
       {
         label: "In-Person Sessions",
         value: inPerson,
         icon: MapPin,
-        color: "text-[#00E6BA]",
-        bg: "bg-[#00BA97]/20",
+        color: "text-emerald-400",
+        bg: "bg-emerald-400/15",
         href: "/in-person"
       },
       {
@@ -35,7 +35,7 @@ export function OverviewStats() {
         value: webinar,
         icon: Video,
         color: "text-blue-400",
-        bg: "bg-blue-500/20",
+        bg: "bg-blue-400/15",
         href: "/webinars"
       },
       {
@@ -43,7 +43,7 @@ export function OverviewStats() {
         value: segments,
         icon: Users,
         color: "text-purple-400",
-        bg: "bg-purple-500/20",
+        bg: "bg-purple-400/15",
         href: "/audiences"
       }
     ];
@@ -54,20 +54,18 @@ export function OverviewStats() {
       {stats.map((stat, index) => {
         const Icon = stat.icon;
         return (
-          <Link key={index} href={stat.href}>
-            <a className="block h-full outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl">
-              <Card className="glass-card overflow-hidden h-full hover:scale-[1.02] hover:shadow-md transition-all cursor-pointer">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className={`p-3 rounded-xl ${stat.bg} ${stat.color} shadow-sm`}>
-                    <Icon className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground font-medium mb-1">{stat.label}</p>
-                    <p className="text-2xl md:text-3xl font-bold text-foreground font-serif tracking-tight">{stat.value}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </a>
+          <Link key={index} href={stat.href} className="block h-full outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl">
+            <Card className="glass-card overflow-hidden h-full hover:scale-[1.02] hover:neon-glow transition-all cursor-pointer">
+              <CardContent className="p-6 flex items-center gap-4">
+                <div className={`p-3 rounded-xl ${stat.bg} ${stat.color} shadow-sm`}>
+                  <Icon className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground font-medium mb-1">{stat.label}</p>
+                  <p className="text-2xl md:text-3xl font-bold text-foreground font-serif tracking-tight">{stat.value}</p>
+                </div>
+              </CardContent>
+            </Card>
           </Link>
         );
       })}
