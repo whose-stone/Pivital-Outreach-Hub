@@ -61,35 +61,33 @@ export default function AdminPage() {
   const [isNewAdmin, setIsNewAdmin] = useState(false);
   const [resetPassword, setResetPassword] = useState("");
 
-  if (!user?.isAdmin) {
-    setLocation("/");
-    return null;
-  }
-
   const { data: users = [] } = useQuery<AppUser[]>({
     queryKey: ["/api/users"],
     queryFn: () => apiRequest("/api/users"),
+    enabled: !!user?.isAdmin,
   });
 
   const createMutation = useMutation({
-    mutationFn: () => apiRequest("/api/users", {
-      method: "POST",
-      body: JSON.stringify({ username: newUsername, password: newPassword, isAdmin: isNewAdmin }),
-    }),
-    onSuccess: () => {
+    mutationFn: (data: { username: string; password: string; isAdmin: boolean }) =>
+      apiRequest("/api/users", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+    onSuccess: (_data, vars) => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
       setIsCreateOpen(false);
       setNewUsername(""); setNewPassword(""); setIsNewAdmin(false);
-      toast({ title: "User Created", description: `Account "${newUsername}" has been created.` });
+      toast({ title: "User Created", description: `Account "${vars.username}" has been created.` });
     },
     onError: (err: any) => toast({ title: "Error", description: err.message, variant: "destructive" }),
   });
 
   const resetMutation = useMutation({
-    mutationFn: () => apiRequest(`/api/users/${targetUser?.id}/password`, {
-      method: "PATCH",
-      body: JSON.stringify({ password: resetPassword }),
-    }),
+    mutationFn: ({ id, password }: { id: string; password: string }) =>
+      apiRequest(`/api/users/${id}/password`, {
+        method: "PATCH",
+        body: JSON.stringify({ password }),
+      }),
     onSuccess: () => {
       setIsResetOpen(false);
       setResetPassword("");
@@ -99,7 +97,7 @@ export default function AdminPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: () => apiRequest(`/api/users/${targetUser?.id}`, { method: "DELETE" }),
+    mutationFn: (id: string) => apiRequest(`/api/users/${id}`, { method: "DELETE" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
       setIsDeleteOpen(false);
@@ -107,6 +105,11 @@ export default function AdminPage() {
     },
     onError: (err: any) => toast({ title: "Error", description: err.message, variant: "destructive" }),
   });
+
+  if (!user?.isAdmin) {
+    setLocation("/");
+    return null;
+  }
 
   return (
     <div className="space-y-6">
@@ -216,7 +219,7 @@ export default function AdminPage() {
             <Button variant="outline" onClick={() => setIsCreateOpen(false)}>Cancel</Button>
             <Button
               data-testid="button-confirm-create-user"
-              onClick={() => createMutation.mutate()}
+              onClick={() => createMutation.mutate({ username: newUsername, password: newPassword, isAdmin: isNewAdmin })}
               disabled={createMutation.isPending || !newUsername || !newPassword}
             >
               {createMutation.isPending ? "Creating..." : "Create User"}
@@ -245,7 +248,7 @@ export default function AdminPage() {
             <Button variant="outline" onClick={() => setIsResetOpen(false)}>Cancel</Button>
             <Button
               data-testid="button-confirm-reset"
-              onClick={() => resetMutation.mutate()}
+              onClick={() => targetUser && resetMutation.mutate({ id: targetUser.id, password: resetPassword })}
               disabled={resetMutation.isPending || resetPassword.length < 6}
             >
               {resetMutation.isPending ? "Resetting..." : "Reset Password"}
@@ -267,7 +270,7 @@ export default function AdminPage() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               data-testid="button-confirm-delete-user"
-              onClick={() => deleteMutation.mutate()}
+              onClick={() => targetUser && deleteMutation.mutate(targetUser.id)}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
               Delete
