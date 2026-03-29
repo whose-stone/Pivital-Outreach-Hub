@@ -69,17 +69,6 @@ export function EventDetailDialog({ event, isOpen, onClose }: EventDetailDialogP
               >
                 <Edit className="h-4 w-4 text-primary" />
               </Button>
-              <Button 
-                variant="outline" 
-                size="icon" 
-                className="h-8 w-8 bg-white/10 hover:bg-red-500/20 hover:text-red-400 border-white/10 hover:border-red-500/30 shadow-sm"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setIsDeleteAlertOpen(true);
-                }}
-              >
-                <Trash2 className="h-4 w-4 text-slate-500 hover:text-red-600" />
-              </Button>
             </div>
 
             <div className="flex items-start justify-between gap-4 mb-4 pr-16">
@@ -108,7 +97,7 @@ export function EventDetailDialog({ event, isOpen, onClose }: EventDetailDialogP
             </DialogDescription>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8">
+          <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 pb-0">
             {/* Quick Details */}
             <div className="flex flex-wrap gap-6 p-4 rounded-xl bg-white/5 border border-white/10">
               <div className="flex items-center gap-3">
@@ -173,6 +162,20 @@ export function EventDetailDialog({ event, isOpen, onClose }: EventDetailDialogP
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className="shrink-0 px-6 md:px-8 py-4 border-t border-white/10 flex items-center">
+            <Button
+              variant="ghost"
+              className="text-red-400 hover:text-red-300 hover:bg-red-500/10 gap-2"
+              onClick={(e) => {
+                e.preventDefault();
+                setIsDeleteAlertOpen(true);
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
