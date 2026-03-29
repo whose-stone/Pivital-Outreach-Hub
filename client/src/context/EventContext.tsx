@@ -1,90 +1,202 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
-import { eventsData as initialEvents, OutreachEvent, EventCategory } from "@/data/events";
+import React, { createContext, useContext, ReactNode } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+export type EventFormat = "in-person" | "webinar";
+
+export interface OutreachEvent {
+  id: string;
+  organization: string;
+  topic: string;
+  date: string;
+  time: string;
+  format: EventFormat;
+  venue: string;
+  category: string;
+  summary: string;
+  callToAction: string;
+  executionNotes: string;
+  createdAt?: string;
+}
+
+export interface Audience {
+  id: string;
+  name: string;
+  createdAt?: string;
+}
+
+export interface Topic {
+  id: string;
+  name: string;
+  createdAt?: string;
+}
+
+// ─── API helpers ─────────────────────────────────────────────────────────────
+
+async function apiRequest<T>(url: string, options?: RequestInit): Promise<T> {
+  const res = await fetch(url, {
+    headers: { "Content-Type": "application/json" },
+    ...options,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: res.statusText }));
+    throw new Error(err.message || "Request failed");
+  }
+  if (res.status === 204) return undefined as unknown as T;
+  return res.json();
+}
+
+// ─── Context ─────────────────────────────────────────────────────────────────
 
 interface EventContextType {
   events: OutreachEvent[];
+  eventsLoading: boolean;
   categories: string[];
-  topics: string[];
-  addEvent: (event: Omit<OutreachEvent, "id">) => void;
-  updateEvent: (id: string, event: Partial<OutreachEvent>) => void;
-  deleteEvent: (id: string) => void;
-  addCategory: (category: string) => void;
-  updateCategory: (oldCategory: string, newCategory: string) => void;
-  deleteCategory: (category: string) => void;
-  addTopic: (topic: string) => void;
-  updateTopic: (oldTopic: string, newTopic: string) => void;
-  deleteTopic: (topic: string) => void;
+  audiences: Audience[];
+  audiencesLoading: boolean;
+  topics: Topic[];
+  topicsLoading: boolean;
+
+  addEvent: (event: Omit<OutreachEvent, "id" | "createdAt">) => Promise<void>;
+  updateEvent: (id: string, event: Partial<Omit<OutreachEvent, "id" | "createdAt">>) => Promise<void>;
+  deleteEvent: (id: string) => Promise<void>;
+
+  addAudience: (name: string) => Promise<void>;
+  updateAudience: (id: string, name: string) => Promise<void>;
+  deleteAudience: (id: string) => Promise<void>;
+
+  addTopic: (name: string) => Promise<void>;
+  updateTopic: (id: string, name: string) => Promise<void>;
+  deleteTopic: (id: string) => Promise<void>;
+
+  // legacy compatibility helpers (by name)
+  addCategory: (name: string) => Promise<void>;
+  updateCategory: (oldName: string, newName: string) => Promise<void>;
+  deleteCategory: (name: string) => Promise<void>;
 }
 
 const EventContext = createContext<EventContextType | undefined>(undefined);
 
+// ─── Provider ─────────────────────────────────────────────────────────────────
+
 export function EventProvider({ children }: { children: ReactNode }) {
-  const [events, setEvents] = useState<OutreachEvent[]>(initialEvents);
-  
-  // Extract initial categories and topics from data
-  const [categories, setCategories] = useState<string[]>(
-    Array.from(new Set([...initialEvents.map((e) => e.category), "Business", "Startup", "Retail", "Healthcare", "Education"]))
-  );
+  const qc = useQueryClient();
 
-  const [topics, setTopics] = useState<string[]>(
-    Array.from(new Set([...initialEvents.map((e) => e.topic)]))
-  );
+  const { data: eventsData = [], isLoading: eventsLoading } = useQuery<OutreachEvent[]>({
+    queryKey: ["/api/events"],
+    queryFn: () => apiRequest("/api/events"),
+  });
 
-  const addEvent = (newEvent: Omit<OutreachEvent, "id">) => {
-    const event: OutreachEvent = {
-      ...newEvent,
-      id: `evt-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
-      category: newEvent.category as EventCategory,
-    };
-    setEvents((prev) => [...prev, event]);
+  const { data: audiencesData = [], isLoading: audiencesLoading } = useQuery<Audience[]>({
+    queryKey: ["/api/audiences"],
+    queryFn: () => apiRequest("/api/audiences"),
+  });
+
+  const { data: topicsData = [], isLoading: topicsLoading } = useQuery<Topic[]>({
+    queryKey: ["/api/topics"],
+    queryFn: () => apiRequest("/api/topics"),
+  });
+
+  // ─── Event mutations ──────────────────────────────────────────────────────
+  const createEventMut = useMutation({
+    mutationFn: (event: Omit<OutreachEvent, "id" | "createdAt">) =>
+      apiRequest<OutreachEvent>("/api/events", { method: "POST", body: JSON.stringify(event) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["/api/events"] }),
+  });
+
+  const updateEventMut = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<Omit<OutreachEvent, "id" | "createdAt">> }) =>
+      apiRequest<OutreachEvent>(`/api/events/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["/api/events"] }),
+  });
+
+  const deleteEventMut = useMutation({
+    mutationFn: (id: string) =>
+      apiRequest<void>(`/api/events/${id}`, { method: "DELETE" }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["/api/events"] }),
+  });
+
+  // ─── Audience mutations ────────────────────────────────────────────────────
+  const createAudienceMut = useMutation({
+    mutationFn: (name: string) =>
+      apiRequest<Audience>("/api/audiences", { method: "POST", body: JSON.stringify({ name }) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["/api/audiences"] }),
+  });
+
+  const updateAudienceMut = useMutation({
+    mutationFn: ({ id, name }: { id: string; name: string }) =>
+      apiRequest<Audience>(`/api/audiences/${id}`, { method: "PATCH", body: JSON.stringify({ name }) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["/api/audiences"] }),
+  });
+
+  const deleteAudienceMut = useMutation({
+    mutationFn: (id: string) =>
+      apiRequest<void>(`/api/audiences/${id}`, { method: "DELETE" }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["/api/audiences"] }),
+  });
+
+  // ─── Topic mutations ────────────────────────────────────────────────────────
+  const createTopicMut = useMutation({
+    mutationFn: (name: string) =>
+      apiRequest<Topic>("/api/topics", { method: "POST", body: JSON.stringify({ name }) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["/api/topics"] }),
+  });
+
+  const updateTopicMut = useMutation({
+    mutationFn: ({ id, name }: { id: string; name: string }) =>
+      apiRequest<Topic>(`/api/topics/${id}`, { method: "PATCH", body: JSON.stringify({ name }) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["/api/topics"] }),
+  });
+
+  const deleteTopicMut = useMutation({
+    mutationFn: (id: string) =>
+      apiRequest<void>(`/api/topics/${id}`, { method: "DELETE" }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["/api/topics"] }),
+  });
+
+  // ─── Derived data ──────────────────────────────────────────────────────────
+
+  const categories = audiencesData.map((a) => a.name);
+
+  // Legacy by-name helpers for old code that uses category names
+  const addCategory = (name: string) => createAudienceMut.mutateAsync(name);
+  const updateCategory = (oldName: string, newName: string) => {
+    const aud = audiencesData.find((a) => a.name === oldName);
+    if (!aud) return Promise.resolve();
+    return updateAudienceMut.mutateAsync({ id: aud.id, name: newName });
   };
-
-  const updateEvent = (id: string, updatedFields: Partial<OutreachEvent>) => {
-    setEvents((prev) =>
-      prev.map((event) => (event.id === id ? { ...event, ...updatedFields } : event))
-    );
-  };
-
-  const deleteEvent = (id: string) => {
-    setEvents((prev) => prev.filter((event) => event.id !== id));
-  };
-
-  const addCategory = (category: string) => {
-    if (!categories.includes(category)) {
-      setCategories((prev) => [...prev, category]);
-    }
-  };
-
-  const updateCategory = (oldCategory: string, newCategory: string) => {
-    setCategories((prev) => prev.map(c => c === oldCategory ? newCategory : c));
-    setEvents((prev) => prev.map(e => e.category === oldCategory ? { ...e, category: newCategory as EventCategory } : e));
-  };
-
-  const deleteCategory = (category: string) => {
-    setCategories((prev) => prev.filter(c => c !== category));
-  };
-
-  const addTopic = (topic: string) => {
-    if (!topics.includes(topic)) {
-      setTopics((prev) => [...prev, topic]);
-    }
-  };
-
-  const updateTopic = (oldTopic: string, newTopic: string) => {
-    setTopics((prev) => prev.map(t => t === oldTopic ? newTopic : t));
-    setEvents((prev) => prev.map(e => e.topic === oldTopic ? { ...e, topic: newTopic } : e));
-  };
-
-  const deleteTopic = (topic: string) => {
-    setTopics((prev) => prev.filter(t => t !== topic));
+  const deleteCategory = (name: string) => {
+    const aud = audiencesData.find((a) => a.name === name);
+    if (!aud) return Promise.resolve();
+    return deleteAudienceMut.mutateAsync(aud.id);
   };
 
   return (
-    <EventContext.Provider value={{ 
-      events, categories, topics, 
-      addEvent, updateEvent, deleteEvent, 
-      addCategory, updateCategory, deleteCategory,
-      addTopic, updateTopic, deleteTopic
+    <EventContext.Provider value={{
+      events: eventsData,
+      eventsLoading,
+      categories,
+      audiences: audiencesData,
+      audiencesLoading,
+      topics: topicsData,
+      topicsLoading,
+
+      addEvent: (e) => createEventMut.mutateAsync(e),
+      updateEvent: (id, data) => updateEventMut.mutateAsync({ id, data }),
+      deleteEvent: (id) => deleteEventMut.mutateAsync(id),
+
+      addAudience: (name) => createAudienceMut.mutateAsync(name),
+      updateAudience: (id, name) => updateAudienceMut.mutateAsync({ id, name }),
+      deleteAudience: (id) => deleteAudienceMut.mutateAsync(id),
+
+      addTopic: (name) => createTopicMut.mutateAsync(name),
+      updateTopic: (id, name) => updateTopicMut.mutateAsync({ id, name }),
+      deleteTopic: (id) => deleteTopicMut.mutateAsync(id),
+
+      addCategory,
+      updateCategory,
+      deleteCategory,
     }}>
       {children}
     </EventContext.Provider>
@@ -93,8 +205,6 @@ export function EventProvider({ children }: { children: ReactNode }) {
 
 export function useEvents() {
   const context = useContext(EventContext);
-  if (context === undefined) {
-    throw new Error("useEvents must be used within an EventProvider");
-  }
+  if (!context) throw new Error("useEvents must be used within an EventProvider");
   return context;
 }

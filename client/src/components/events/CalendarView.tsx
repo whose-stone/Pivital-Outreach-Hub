@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useEvents } from "@/context/EventContext";
-import { OutreachEvent } from "@/data/events";
+import type { OutreachEvent } from "@/context/EventContext";
 import { EventDetailDialog } from "./EventDetailDialog";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent } from "@/components/ui/card";

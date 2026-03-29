@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { OutreachEvent } from "@/data/events";
+import type { OutreachEvent } from "@/context/EventContext";
 import { MapPin, Calendar, Clock, Video, Presentation, Info, CheckCircle, Lightbulb, Edit, Trash2 } from "lucide-react";
 import { useEvents } from "@/context/EventContext";
 import { EventFormDialog } from "../forms/EventFormDialog";

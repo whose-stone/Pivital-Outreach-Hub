@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Video, Calendar as CalendarIcon, Clock, Presentation, Edit, Trash2, Plus } from "lucide-react";
 import { EventFormDialog } from "@/components/forms/EventFormDialog";
 import { EventDetailDialog } from "@/components/events/EventDetailDialog";
-import { OutreachEvent } from "@/data/events";
+import type { OutreachEvent } from "@/context/EventContext";
 
 export default function WebinarsPage() {
   const { events } = useEvents();

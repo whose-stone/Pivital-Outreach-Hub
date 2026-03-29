@@ -1,38 +1,109 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
+import { db } from "./db";
+import { events, audiences, topics, users } from "@shared/schema";
+import { eq } from "drizzle-orm";
+import type {
+  InsertEvent, Event,
+  InsertAudience, Audience,
+  InsertTopic, Topic,
+  InsertUser, User,
+} from "@shared/schema";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+
+  getEvents(): Promise<Event[]>;
+  getEvent(id: string): Promise<Event | undefined>;
+  createEvent(event: InsertEvent): Promise<Event>;
+  updateEvent(id: string, event: Partial<InsertEvent>): Promise<Event | undefined>;
+  deleteEvent(id: string): Promise<void>;
+
+  getAudiences(): Promise<Audience[]>;
+  createAudience(audience: InsertAudience): Promise<Audience>;
+  updateAudience(id: string, audience: Partial<InsertAudience>): Promise<Audience | undefined>;
+  deleteAudience(id: string): Promise<void>;
+
+  getTopics(): Promise<Topic[]>;
+  createTopic(topic: InsertTopic): Promise<Topic>;
+  updateTopic(id: string, topic: Partial<InsertTopic>): Promise<Topic | undefined>;
+  deleteTopic(id: string): Promise<void>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-
-  constructor() {
-    this.users = new Map();
-  }
-
+export class DatabaseStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
+  }
+
+  async getEvents(): Promise<Event[]> {
+    return db.select().from(events).orderBy(events.date);
+  }
+
+  async getEvent(id: string): Promise<Event | undefined> {
+    const [event] = await db.select().from(events).where(eq(events.id, id));
+    return event;
+  }
+
+  async createEvent(event: InsertEvent): Promise<Event> {
+    const [created] = await db.insert(events).values(event).returning();
+    return created;
+  }
+
+  async updateEvent(id: string, event: Partial<InsertEvent>): Promise<Event | undefined> {
+    const [updated] = await db.update(events).set(event).where(eq(events.id, id)).returning();
+    return updated;
+  }
+
+  async deleteEvent(id: string): Promise<void> {
+    await db.delete(events).where(eq(events.id, id));
+  }
+
+  async getAudiences(): Promise<Audience[]> {
+    return db.select().from(audiences).orderBy(audiences.name);
+  }
+
+  async createAudience(audience: InsertAudience): Promise<Audience> {
+    const [created] = await db.insert(audiences).values(audience).returning();
+    return created;
+  }
+
+  async updateAudience(id: string, audience: Partial<InsertAudience>): Promise<Audience | undefined> {
+    const [updated] = await db.update(audiences).set(audience).where(eq(audiences.id, id)).returning();
+    return updated;
+  }
+
+  async deleteAudience(id: string): Promise<void> {
+    await db.delete(audiences).where(eq(audiences.id, id));
+  }
+
+  async getTopics(): Promise<Topic[]> {
+    return db.select().from(topics).orderBy(topics.name);
+  }
+
+  async createTopic(topic: InsertTopic): Promise<Topic> {
+    const [created] = await db.insert(topics).values(topic).returning();
+    return created;
+  }
+
+  async updateTopic(id: string, topic: Partial<InsertTopic>): Promise<Topic | undefined> {
+    const [updated] = await db.update(topics).set(topic).where(eq(topics.id, id)).returning();
+    return updated;
+  }
+
+  async deleteTopic(id: string): Promise<void> {
+    await db.delete(topics).where(eq(topics.id, id));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

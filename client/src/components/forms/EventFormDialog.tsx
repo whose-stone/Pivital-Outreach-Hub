@@ -28,8 +28,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useEvents } from "@/context/EventContext";
-import { Plus, PlusCircle, Edit2, BookOpen } from "lucide-react";
-import { EventFormat, OutreachEvent } from "@/data/events";
+import type { OutreachEvent } from "@/context/EventContext";
+import { Plus, PlusCircle, Edit2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 
@@ -118,20 +118,10 @@ export function EventFormDialog({ children, eventToEdit, isOpen: controlledOpen,
         callToAction: eventToEdit.callToAction,
         executionNotes: eventToEdit.executionNotes || "",
       });
-      // Ensure dropdowns work correctly by checking if values are known
-      if (!categories.includes(eventToEdit.category)) {
-         addCategory(eventToEdit.category);
-      }
-      if (!topics.includes(eventToEdit.topic)) {
-         addTopic(eventToEdit.topic);
-      }
       setIsCreatingCategory(false);
       setIsCreatingTopic(false);
     } else if (!eventToEdit && open) {
-      // Setup defaults based on current page
       const defaultFormat = location === '/webinars' ? 'webinar' : 'in-person';
-      
-      // Reset if opened for a new event
       form.reset({
         organization: "",
         topic: "",
@@ -147,20 +137,20 @@ export function EventFormDialog({ children, eventToEdit, isOpen: controlledOpen,
         executionNotes: "",
       });
     }
-  }, [eventToEdit, open, form, categories, topics, addCategory, addTopic, location]);
+  }, [eventToEdit, open, form, location]);
 
-  const onSubmit = (data: EventFormValues) => {
+  const onSubmit = async (data: EventFormValues) => {
     let finalCategory = data.category;
     let finalTopic = data.topic;
 
     if (isCreatingCategory && data.newCategory) {
       finalCategory = data.newCategory;
-      addCategory(data.newCategory);
+      await addCategory(data.newCategory);
     }
     
     if (isCreatingTopic && data.newTopic) {
       finalTopic = data.newTopic;
-      addTopic(data.newTopic);
+      await addTopic(data.newTopic);
     }
 
     const eventData = {
@@ -168,29 +158,26 @@ export function EventFormDialog({ children, eventToEdit, isOpen: controlledOpen,
       topic: finalTopic,
       date: data.date,
       time: data.time,
-      format: data.format as EventFormat,
+      format: data.format,
       venue: data.venue,
-      category: finalCategory as any,
+      category: finalCategory,
       summary: data.summary,
       callToAction: data.callToAction,
       executionNotes: data.executionNotes || "",
     };
 
-    if (eventToEdit) {
-      updateEvent(eventToEdit.id, eventData);
-      toast({
-        title: "Event Updated",
-        description: "The outreach event has been successfully updated.",
-      });
-    } else {
-      addEvent(eventData);
-      toast({
-        title: "Event Created",
-        description: "The new outreach event has been successfully scheduled.",
-      });
+    try {
+      if (eventToEdit) {
+        await updateEvent(eventToEdit.id, eventData);
+        toast({ title: "Event Updated", description: "The outreach event has been successfully updated." });
+      } else {
+        await addEvent(eventData);
+        toast({ title: "Event Created", description: "The new outreach event has been successfully scheduled." });
+      }
+      handleOpenChange(false);
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
     }
-    
-    handleOpenChange(false);
   };
 
   // Only show the Create New Event button on the calendar, events, schedule, in-person, and webinars pages
@@ -274,7 +261,7 @@ export function EventFormDialog({ children, eventToEdit, isOpen: controlledOpen,
                           </FormControl>
                           <SelectContent className="z-[110]">
                             {topics.map((t) => (
-                              <SelectItem key={t} value={t}>{t}</SelectItem>
+                              <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
