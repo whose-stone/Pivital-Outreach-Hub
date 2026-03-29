@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { Calendar, LayoutGrid, List } from "lucide-react";
+import { EventFormDialog } from "../forms/EventFormDialog";
 
 export function TopNav() {
   const [location] = useLocation();
@@ -23,27 +24,31 @@ export function TopNav() {
           </span>
         </div>
 
-        <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-lg">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location === item.href;
-            return (
-              <Link key={item.href} href={item.href}>
-                <a
-                  className={cn(
-                    "flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
-                    isActive
-                      ? "bg-white text-primary shadow-sm"
-                      : "text-muted-foreground hover:text-foreground hover:bg-white/50"
-                  )}
-                  data-testid={`nav-${item.label.toLowerCase()}`}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span className="hidden sm:inline-block">{item.label}</span>
-                </a>
-              </Link>
-            );
-          })}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-lg">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location === item.href;
+              return (
+                <Link key={item.href} href={item.href}>
+                  <a
+                    className={cn(
+                      "flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
+                      isActive
+                        ? "bg-white text-primary shadow-sm"
+                        : "text-muted-foreground hover:text-foreground hover:bg-white/50"
+                    )}
+                    data-testid={`nav-${item.label.toLowerCase()}`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span className="hidden sm:inline-block">{item.label}</span>
+                  </a>
+                </Link>
+              );
+            })}
+          </div>
+          
+          <EventFormDialog />
         </div>
       </div>
     </nav>

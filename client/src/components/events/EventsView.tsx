@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { eventsData, OutreachEvent } from "@/data/events";
+import { useEvents } from "@/context/EventContext";
+import { OutreachEvent } from "@/data/events";
 import { EventDetailDialog } from "./EventDetailDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,11 +10,12 @@ import { Calendar as CalendarIcon, MapPin, Video, Search, Filter } from "lucide-
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function EventsView() {
+  const { events } = useEvents();
   const [selectedEvent, setSelectedEvent] = useState<OutreachEvent | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
-  const filteredEvents = eventsData.filter((event) => {
+  const filteredEvents = events.filter((event) => {
     const matchesSearch = 
       event.topic.toLowerCase().includes(searchQuery.toLowerCase()) ||
       event.organization.toLowerCase().includes(searchQuery.toLowerCase());
@@ -22,7 +24,7 @@ export function EventsView() {
     return matchesSearch && matchesCategory;
   });
 
-  const categories = Array.from(new Set(eventsData.map(e => e.category)));
+  const categories = Array.from(new Set(events.map(e => e.category)));
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -56,7 +58,7 @@ export function EventsView() {
         {filteredEvents.map((event) => (
           <Card 
             key={event.id} 
-            className="glass-card group cursor-pointer overflow-hidden border-t-4 hover:-translate-y-1 transition-all duration-300"
+            className="glass-card group cursor-pointer overflow-hidden border-t-4 hover:-translate-y-1 transition-all duration-300 flex flex-col h-full"
             style={{ borderTopColor: 'hsl(var(--primary))' }}
             onClick={() => setSelectedEvent(event)}
           >
@@ -82,21 +84,21 @@ export function EventsView() {
                 {event.organization}
               </p>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
+            <CardContent className="flex flex-col flex-1">
+              <div className="space-y-3 flex-1">
                 <div className="flex items-center text-sm text-slate-600">
                   <CalendarIcon className="w-4 h-4 mr-2 text-primary/70" />
-                  {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {event.time}
+                  {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} • {event.time}
                 </div>
                 <p className="text-sm text-slate-600 line-clamp-2">
                   {event.summary}
                 </p>
-                <div className="pt-4 flex justify-end">
-                  <Button variant="ghost" size="sm" className="text-primary hover:bg-primary/10 group-hover:bg-primary/10 w-full justify-between">
-                    View Details
-                    <span className="opacity-0 group-hover:opacity-100 transition-opacity translate-x-[-10px] group-hover:translate-x-0 duration-300">→</span>
-                  </Button>
-                </div>
+              </div>
+              <div className="pt-4 flex justify-end mt-auto">
+                <Button variant="ghost" size="sm" className="text-primary hover:bg-primary/10 group-hover:bg-primary/10 w-full justify-between">
+                  View Details
+                  <span className="opacity-0 group-hover:opacity-100 transition-opacity translate-x-[-10px] group-hover:translate-x-0 duration-300">→</span>
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -104,7 +106,7 @@ export function EventsView() {
         {filteredEvents.length === 0 && (
           <div className="col-span-full py-12 text-center text-muted-foreground bg-white/40 rounded-xl border border-dashed border-slate-300">
             <p className="text-lg font-medium">No events found</p>
-            <p className="text-sm">Try adjusting your search or filters.</p>
+            <p className="text-sm">Try adjusting your search or filters, or create a new event.</p>
           </div>
         )}
       </div>

@@ -1,14 +1,16 @@
 import { useMemo } from "react";
-import { eventsData } from "@/data/events";
+import { useEvents } from "@/context/EventContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { CalendarDays, MapPin, Video, Users } from "lucide-react";
 
 export function OverviewStats() {
+  const { events, categories } = useEvents();
+  
   const stats = useMemo(() => {
-    const total = eventsData.length;
-    const inPerson = eventsData.filter(e => e.format === "in-person").length;
-    const webinar = eventsData.filter(e => e.format === "webinar").length;
-    const segments = new Set(eventsData.map(e => e.category)).size;
+    const total = events.length;
+    const inPerson = events.filter(e => e.format === "in-person").length;
+    const webinar = events.filter(e => e.format === "webinar").length;
+    const segments = categories.length;
 
     return [
       {
@@ -40,7 +42,7 @@ export function OverviewStats() {
         bg: "bg-purple-100",
       }
     ];
-  }, []);
+  }, [events, categories]);
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100 fill-mode-both">

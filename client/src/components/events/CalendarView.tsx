@@ -1,22 +1,26 @@
-import { useState } from "react";
-import { eventsData, OutreachEvent } from "@/data/events";
+import { useState, useMemo } from "react";
+import { useEvents } from "@/context/EventContext";
+import { OutreachEvent } from "@/data/events";
 import { EventDetailDialog } from "./EventDetailDialog";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 export function CalendarView() {
-  const [date, setDate] = useState<Date | undefined>(new Date(2024, 10, 15)); // Nov 2024 to match seed data
+  const { events } = useEvents();
+  const [date, setDate] = useState<Date | undefined>(new Date());
   const [selectedEvent, setSelectedEvent] = useState<OutreachEvent | null>(null);
 
   // Group events by date string (YYYY-MM-DD)
-  const eventsByDate = eventsData.reduce((acc, event) => {
-    if (!acc[event.date]) {
-      acc[event.date] = [];
-    }
-    acc[event.date].push(event);
-    return acc;
-  }, {} as Record<string, OutreachEvent[]>);
+  const eventsByDate = useMemo(() => {
+    return events.reduce((acc, event) => {
+      if (!acc[event.date]) {
+        acc[event.date] = [];
+      }
+      acc[event.date].push(event);
+      return acc;
+    }, {} as Record<string, OutreachEvent[]>);
+  }, [events]);
 
   // Function to check if a date has events
   const getEventsForDate = (date: Date) => {
