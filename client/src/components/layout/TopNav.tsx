@@ -1,7 +1,15 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { Calendar, LayoutGrid, List, Users, Video, MapPin, BookOpen, Upload, Bell } from "lucide-react";
+import { Calendar, LayoutGrid, List, Users, Video, MapPin, BookOpen, Upload, Bell, ShieldCheck, LogOut } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/context/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface Notice {
   id: string;
@@ -16,6 +24,7 @@ async function fetchNotices(): Promise<Notice[]> {
 
 export function TopNav() {
   const [location] = useLocation();
+  const { user, logout } = useAuth();
 
   const { data: notices = [] } = useQuery<Notice[]>({
     queryKey: ["/api/notices"],
@@ -50,7 +59,7 @@ export function TopNav() {
         </div>
 
         {/* Nav links */}
-        <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl overflow-x-auto max-w-[55vw] sm:max-w-none scrollbar-hide">
+        <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl overflow-x-auto max-w-[45vw] sm:max-w-none scrollbar-hide">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location === item.href;
@@ -73,28 +82,69 @@ export function TopNav() {
           })}
         </div>
 
-        {/* Bell icon */}
-        <Link href="/notices">
-          <span
-            className={cn(
-              "relative flex items-center justify-center h-9 w-9 rounded-lg transition-all duration-200 cursor-pointer",
-              location === "/notices"
-                ? "bg-yellow-400 text-[#001F17]"
-                : "text-white/60 hover:text-white hover:bg-white/10"
-            )}
-            data-testid="nav-notices"
-          >
-            <Bell className="h-5 w-5" />
-            {unresolvedCount > 0 && (
-              <span
-                data-testid="badge-notice-count"
-                className="absolute -top-1 -right-1 flex items-center justify-center h-4 min-w-4 px-1 text-[10px] font-bold rounded-full bg-yellow-400 text-[#001F17]"
+        {/* Right side: bell + user menu */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Bell */}
+          <Link href="/notices">
+            <span
+              className={cn(
+                "relative flex items-center justify-center h-9 w-9 rounded-lg transition-all duration-200 cursor-pointer",
+                location === "/notices"
+                  ? "bg-yellow-400 text-[#001F17]"
+                  : "text-white/60 hover:text-white hover:bg-white/10"
+              )}
+              data-testid="nav-notices"
+            >
+              <Bell className="h-5 w-5" />
+              {unresolvedCount > 0 && (
+                <span
+                  data-testid="badge-notice-count"
+                  className="absolute -top-1 -right-1 flex items-center justify-center h-4 min-w-4 px-1 text-[10px] font-bold rounded-full bg-yellow-400 text-[#001F17]"
+                >
+                  {unresolvedCount}
+                </span>
+              )}
+            </span>
+          </Link>
+
+          {/* User menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                data-testid="button-user-menu"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-white/60 hover:text-white hover:bg-white/10 transition-all duration-200"
               >
-                {unresolvedCount}
-              </span>
-            )}
-          </span>
-        </Link>
+                <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-bold uppercase">
+                  {user?.username?.[0]}
+                </div>
+                <span className="hidden sm:inline-block">{user?.username}</span>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              {user?.isAdmin && (
+                <>
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin">
+                      <a className="flex items-center gap-2 w-full cursor-pointer" data-testid="nav-admin">
+                        <ShieldCheck className="h-4 w-4 text-primary" />
+                        Admin Panel
+                      </a>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
+              <DropdownMenuItem
+                data-testid="button-logout"
+                className="text-red-400 focus:text-red-300 focus:bg-red-500/10 cursor-pointer gap-2"
+                onClick={logout}
+              >
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </nav>
   );

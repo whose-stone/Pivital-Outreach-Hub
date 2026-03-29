@@ -1,9 +1,28 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import multer from "multer";
 import { storage } from "./storage";
+import { hashPassword, verifyPassword } from "./auth";
 import { insertEventSchema, insertAudienceSchema, insertTopicSchema, insertNoticeSchema } from "@shared/schema";
 import { z } from "zod";
+
+function requireAuth(req: Request, res: Response, next: NextFunction) {
+  if (!req.session?.userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  next();
+}
+
+async function requireAdmin(req: Request, res: Response, next: NextFunction) {
+  if (!req.session?.userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  const user = await storage.getUser(req.session.userId);
+  if (!user?.isAdmin) {
+    return res.status(403).json({ message: "Forbidden" });
+  }
+  next();
+}
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -54,6 +73,65 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+
+  // ─── Auth ──────────────────────────────────────────────────────────────
+  app.get("/api/me", async (req, res) => {
+    if (!req.session?.userId) return res.status(401).json({ message: "Not logged in" });
+    const user = await storage.getUser(req.session.userId);
+    if (!user) return res.status(401).json({ message: "User not found" });
+    const { password: _, ...safeUser } = user;
+    res.json(safeUser);
+  });
+
+  app.post("/api/login", async (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ message: "Username and password required" });
+    const user = await storage.getUserByUsername(username);
+    if (!user) return res.status(401).json({ message: "Invalid username or password" });
+    const valid = await verifyPassword(password, user.password);
+    if (!valid) return res.status(401).json({ message: "Invalid username or password" });
+    req.session.userId = user.id;
+    const { password: _, ...safeUser } = user;
+    res.json(safeUser);
+  });
+
+  app.post("/api/logout", (req, res) => {
+    req.session.destroy(() => res.json({ ok: true }));
+  });
+
+  // ─── User Management (Admin only) ──────────────────────────────────────
+  app.get("/api/users", requireAdmin, async (_req, res) => {
+    const allUsers = await storage.getAllUsers();
+    res.json(allUsers.map(({ password: _, ...u }) => u));
+  });
+
+  app.post("/api/users", requireAdmin, async (req, res) => {
+    const { username, password, isAdmin } = req.body;
+    if (!username || !password) return res.status(400).json({ message: "Username and password required" });
+    const existing = await storage.getUserByUsername(username);
+    if (existing) return res.status(409).json({ message: "Username already taken" });
+    const hashed = await hashPassword(password);
+    const user = await storage.createUser({ username, password: hashed, isAdmin: !!isAdmin });
+    const { password: _, ...safeUser } = user;
+    res.status(201).json(safeUser);
+  });
+
+  app.delete("/api/users/:id", requireAdmin, async (req, res) => {
+    const user = await storage.getUser(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    if (user.username === "admin") return res.status(403).json({ message: "Cannot delete the admin account" });
+    await storage.deleteUser(req.params.id);
+    res.status(204).send();
+  });
+
+  app.patch("/api/users/:id/password", requireAdmin, async (req, res) => {
+    const { password } = req.body;
+    if (!password || password.length < 6) return res.status(400).json({ message: "Password must be at least 6 characters" });
+    const hashed = await hashPassword(password);
+    const updated = await storage.updateUserPassword(req.params.id, hashed);
+    if (!updated) return res.status(404).json({ message: "User not found" });
+    res.json({ ok: true });
+  });
 
   // ─── Events ────────────────────────────────────────────────────────────
   app.get("/api/events", async (_req, res) => {
