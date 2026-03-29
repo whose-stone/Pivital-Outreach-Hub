@@ -1,11 +1,12 @@
 import { db } from "./db";
-import { events, audiences, topics, users } from "@shared/schema";
+import { events, audiences, topics, users, notices } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import type {
   InsertEvent, Event,
   InsertAudience, Audience,
   InsertTopic, Topic,
   InsertUser, User,
+  InsertNotice, Notice,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -20,6 +21,7 @@ export interface IStorage {
   deleteEvent(id: string): Promise<void>;
 
   getAudiences(): Promise<Audience[]>;
+  getAudienceByName(name: string): Promise<Audience | undefined>;
   createAudience(audience: InsertAudience): Promise<Audience>;
   updateAudience(id: string, audience: Partial<InsertAudience>): Promise<Audience | undefined>;
   deleteAudience(id: string): Promise<void>;
@@ -28,6 +30,10 @@ export interface IStorage {
   createTopic(topic: InsertTopic): Promise<Topic>;
   updateTopic(id: string, topic: Partial<InsertTopic>): Promise<Topic | undefined>;
   deleteTopic(id: string): Promise<void>;
+
+  getNotices(): Promise<Notice[]>;
+  createNotice(notice: InsertNotice): Promise<Notice>;
+  resolveNotice(id: string): Promise<Notice | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -73,6 +79,11 @@ export class DatabaseStorage implements IStorage {
     return db.select().from(audiences).orderBy(audiences.name);
   }
 
+  async getAudienceByName(name: string): Promise<Audience | undefined> {
+    const [audience] = await db.select().from(audiences).where(eq(audiences.name, name));
+    return audience;
+  }
+
   async createAudience(audience: InsertAudience): Promise<Audience> {
     const [created] = await db.insert(audiences).values(audience).returning();
     return created;
@@ -103,6 +114,20 @@ export class DatabaseStorage implements IStorage {
 
   async deleteTopic(id: string): Promise<void> {
     await db.delete(topics).where(eq(topics.id, id));
+  }
+
+  async getNotices(): Promise<Notice[]> {
+    return db.select().from(notices).orderBy(notices.createdAt);
+  }
+
+  async createNotice(notice: InsertNotice): Promise<Notice> {
+    const [created] = await db.insert(notices).values(notice).returning();
+    return created;
+  }
+
+  async resolveNotice(id: string): Promise<Notice | undefined> {
+    const [updated] = await db.update(notices).set({ resolved: true }).where(eq(notices.id, id)).returning();
+    return updated;
   }
 }
 

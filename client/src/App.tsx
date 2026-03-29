@@ -12,6 +12,8 @@ import TargetAudiencesPage from "@/pages/audience/TargetAudiences";
 import InPersonPage from "@/pages/in-person/InPersonEvents";
 import WebinarsPage from "@/pages/webinars/WebinarsEvents";
 import TopicsPage from "@/pages/topics/TopicsPage";
+import CampaignManagementPage from "@/pages/campaigns/CampaignManagement";
+import NoticesPage from "@/pages/notices/NoticesPage";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -25,6 +27,8 @@ function Router() {
         <Route path="/in-person" component={InPersonPage} />
         <Route path="/webinars" component={WebinarsPage} />
         <Route path="/topics" component={TopicsPage} />
+        <Route path="/campaigns" component={CampaignManagementPage} />
+        <Route path="/notices" component={NoticesPage} />
         <Route component={NotFound} />
       </Switch>
     </AppLayout>

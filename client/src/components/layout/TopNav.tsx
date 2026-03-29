@@ -1,9 +1,29 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { Calendar, LayoutGrid, List, Users, Video, MapPin, BookOpen } from "lucide-react";
+import { Calendar, LayoutGrid, List, Users, Video, MapPin, BookOpen, Upload, Bell } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+
+interface Notice {
+  id: string;
+  resolved: boolean;
+}
+
+async function fetchNotices(): Promise<Notice[]> {
+  const res = await fetch("/api/notices");
+  if (!res.ok) return [];
+  return res.json();
+}
 
 export function TopNav() {
   const [location] = useLocation();
+
+  const { data: notices = [] } = useQuery<Notice[]>({
+    queryKey: ["/api/notices"],
+    queryFn: fetchNotices,
+    refetchInterval: 30000,
+  });
+
+  const unresolvedCount = notices.filter((n) => !n.resolved).length;
 
   const navItems = [
     { href: "/", label: "Calendar", icon: Calendar },
@@ -13,6 +33,7 @@ export function TopNav() {
     { href: "/webinars", label: "Webinars", icon: Video },
     { href: "/topics", label: "Topics", icon: BookOpen },
     { href: "/audiences", label: "Audiences", icon: Users },
+    { href: "/campaigns", label: "Campaigns", icon: Upload },
   ];
 
   return (
@@ -29,7 +50,7 @@ export function TopNav() {
         </div>
 
         {/* Nav links */}
-        <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl overflow-x-auto max-w-[60vw] sm:max-w-none scrollbar-hide">
+        <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl overflow-x-auto max-w-[55vw] sm:max-w-none scrollbar-hide">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location === item.href;
@@ -51,6 +72,29 @@ export function TopNav() {
             );
           })}
         </div>
+
+        {/* Bell icon */}
+        <Link href="/notices">
+          <span
+            className={cn(
+              "relative flex items-center justify-center h-9 w-9 rounded-lg transition-all duration-200 cursor-pointer",
+              location === "/notices"
+                ? "bg-yellow-400 text-[#001F17]"
+                : "text-white/60 hover:text-white hover:bg-white/10"
+            )}
+            data-testid="nav-notices"
+          >
+            <Bell className="h-5 w-5" />
+            {unresolvedCount > 0 && (
+              <span
+                data-testid="badge-notice-count"
+                className="absolute -top-1 -right-1 flex items-center justify-center h-4 min-w-4 px-1 text-[10px] font-bold rounded-full bg-yellow-400 text-[#001F17]"
+              >
+                {unresolvedCount}
+              </span>
+            )}
+          </span>
+        </Link>
       </div>
     </nav>
   );

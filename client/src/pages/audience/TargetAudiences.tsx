@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useLocation } from "wouter";
 import { useEvents } from "@/context/EventContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -162,6 +163,19 @@ function AudienceForm({
 export default function TargetAudiencesPage() {
   const { audiences, events, addAudience, updateAudience, deleteAudience } = useEvents();
   const { toast } = useToast();
+  const [location] = useLocation();
+
+  const highlightId = new URLSearchParams(
+    typeof window !== "undefined" ? window.location.search : ""
+  ).get("highlight");
+
+  const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  useEffect(() => {
+    if (highlightId && cardRefs.current[highlightId]) {
+      cardRefs.current[highlightId]?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [highlightId, audiences]);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -252,11 +266,14 @@ export default function TargetAudiencesPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {audiences.map((audience) => {
           const audienceEvents = events.filter((e) => e.category === audience.name);
+          const isHighlighted = highlightId === audience.id;
           return (
             <Card
               key={audience.id}
+              ref={(el) => { cardRefs.current[audience.id] = el as HTMLDivElement | null; }}
+              id={`audience-${audience.id}`}
               data-testid={`card-audience-${audience.id}`}
-              className="glass-card flex flex-col border-t-4 border-t-purple-500"
+              className={`glass-card flex flex-col border-t-4 ${isHighlighted ? "border-t-yellow-400 ring-2 ring-yellow-400/40" : "border-t-purple-500"}`}
             >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-2">
