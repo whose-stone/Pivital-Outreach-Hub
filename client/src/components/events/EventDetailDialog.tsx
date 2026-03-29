@@ -56,7 +56,7 @@ export function EventDetailDialog({ event, isOpen, onClose }: EventDetailDialogP
       <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
         <DialogContent className="max-w-2xl bg-card/95 backdrop-blur-xl border-white/10 shadow-2xl p-0 sm:rounded-2xl max-h-[90vh] flex flex-col z-50">
           <div className="bg-gradient-to-r from-primary/15 to-[#004435]/60 p-6 md:p-8 border-b border-white/20 shrink-0 relative">
-            <div className="absolute top-4 right-4 flex gap-2 z-10">
+            <div className="absolute top-4 right-12 flex gap-2 z-10">
               <Button 
                 variant="outline" 
                 size="icon" 
