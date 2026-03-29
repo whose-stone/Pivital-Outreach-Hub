@@ -3,6 +3,7 @@ import { useEvents } from "@/context/EventContext";
 import type { OutreachEvent } from "@/context/EventContext";
 import { EventDetailDialog } from "./EventDetailDialog";
 import { Calendar } from "@/components/ui/calendar";
+import { CalendarDays } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -136,7 +137,7 @@ export function CalendarView() {
         ) : (
           <div className="flex flex-col items-center justify-center p-8 text-center bg-white/5 rounded-xl border border-dashed border-white/15 h-48">
             <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-3">
-              <Calendar className="w-6 h-6 text-slate-400" />
+              <CalendarDays className="w-6 h-6 text-slate-400" />
             </div>
             <p className="text-slate-500 font-medium">No events scheduled</p>
             <p className="text-sm text-slate-400 mt-1">Select another date to view events.</p>
