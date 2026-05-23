@@ -167,16 +167,18 @@ export function EventProvider({ children }: { children: ReactNode }) {
   const categories = audiencesData.map((a) => a.name);
 
   // Legacy by-name helpers for old code that uses category names
-  const addCategory = (name: string) => createAudienceMut.mutateAsync({ name });
-  const updateCategory = (oldName: string, newName: string) => {
-    const aud = audiencesData.find((a) => a.name === oldName);
-    if (!aud) return Promise.resolve();
-    return updateAudienceMut.mutateAsync({ id: aud.id, data: { name: newName } });
+  const addCategory = async (name: string) => {
+    await createAudienceMut.mutateAsync({ name });
   };
-  const deleteCategory = (name: string) => {
+  const updateCategory = async (oldName: string, newName: string) => {
+    const aud = audiencesData.find((a) => a.name === oldName);
+    if (!aud) return;
+    await updateAudienceMut.mutateAsync({ id: aud.id, data: { name: newName } });
+  };
+  const deleteCategory = async (name: string) => {
     const aud = audiencesData.find((a) => a.name === name);
-    if (!aud) return Promise.resolve();
-    return deleteAudienceMut.mutateAsync(aud.id);
+    if (!aud) return;
+    await deleteAudienceMut.mutateAsync(aud.id);
   };
 
   return (
@@ -189,16 +191,16 @@ export function EventProvider({ children }: { children: ReactNode }) {
       topics: topicsData,
       topicsLoading,
 
-      addEvent: (e) => createEventMut.mutateAsync(e),
-      updateEvent: (id, data) => updateEventMut.mutateAsync({ id, data }),
+      addEvent: async (e) => { await createEventMut.mutateAsync(e); },
+      updateEvent: async (id, data) => { await updateEventMut.mutateAsync({ id, data }); },
       deleteEvent: (id) => deleteEventMut.mutateAsync(id),
 
-      addAudience: (data) => createAudienceMut.mutateAsync(data),
-      updateAudience: (id, data) => updateAudienceMut.mutateAsync({ id, data }),
+      addAudience: async (data) => { await createAudienceMut.mutateAsync(data); },
+      updateAudience: async (id, data) => { await updateAudienceMut.mutateAsync({ id, data }); },
       deleteAudience: (id) => deleteAudienceMut.mutateAsync(id),
 
-      addTopic: (name) => createTopicMut.mutateAsync(name),
-      updateTopic: (id, name) => updateTopicMut.mutateAsync({ id, name }),
+      addTopic: async (name) => { await createTopicMut.mutateAsync(name); },
+      updateTopic: async (id, name) => { await updateTopicMut.mutateAsync({ id, name }); },
       deleteTopic: (id) => deleteTopicMut.mutateAsync(id),
 
       addCategory,

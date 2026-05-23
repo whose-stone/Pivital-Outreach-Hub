@@ -1,10 +1,15 @@
 import type { Express, Request, Response, NextFunction } from "express";
-import { createServer, type Server } from "http";
 import multer from "multer";
+import rateLimit from "express-rate-limit";
 import { storage } from "./storage";
 import { hashPassword, verifyPassword } from "./auth";
-import { insertEventSchema, insertAudienceSchema, insertTopicSchema, insertNoticeSchema } from "@shared/schema";
+import { insertEventSchema, insertAudienceSchema, insertTopicSchema, insertNoticeSchema } from "../shared/schema";
 import { z } from "zod";
+
+function getParamString(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) return value[0] ?? "";
+  return value ?? "";
+}
 
 function requireAuth(req: Request, res: Response, next: NextFunction) {
   if (!req.session?.userId) {
@@ -23,6 +28,14 @@ async function requireAdmin(req: Request, res: Response, next: NextFunction) {
   }
   next();
 }
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many login attempts, please try again later." },
+});
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -69,10 +82,7 @@ function splitCSVLine(line: string): string[] {
   return result;
 }
 
-export async function registerRoutes(
-  httpServer: Server,
-  app: Express
-): Promise<Server> {
+export function registerRoutes(app: Express): void {
 
   // ─── Auth ──────────────────────────────────────────────────────────────
   app.get("/api/me", async (req, res) => {
@@ -83,7 +93,7 @@ export async function registerRoutes(
     res.json(safeUser);
   });
 
-  app.post("/api/login", async (req, res) => {
+  app.post("/api/login", loginLimiter, async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) return res.status(400).json({ message: "Username and password required" });
     const user = await storage.getUserByUsername(username);
@@ -96,7 +106,10 @@ export async function registerRoutes(
   });
 
   app.post("/api/logout", (req, res) => {
-    req.session.destroy(() => res.json({ ok: true }));
+    req.session.destroy(() => {
+      res.clearCookie("connect.sid");
+      res.json({ ok: true });
+    });
   });
 
   // ─── User Management (Admin only) ──────────────────────────────────────
@@ -117,10 +130,10 @@ export async function registerRoutes(
   });
 
   app.delete("/api/users/:id", requireAdmin, async (req, res) => {
-    const user = await storage.getUser(req.params.id);
+    const user = await storage.getUser(getParamString(req.params.id));
     if (!user) return res.status(404).json({ message: "User not found" });
     if (user.username === "admin") return res.status(403).json({ message: "Cannot delete the admin account" });
-    await storage.deleteUser(req.params.id);
+    await storage.deleteUser(getParamString(req.params.id));
     res.status(204).send();
   });
 
@@ -128,7 +141,7 @@ export async function registerRoutes(
     const { password } = req.body;
     if (!password || password.length < 6) return res.status(400).json({ message: "Password must be at least 6 characters" });
     const hashed = await hashPassword(password);
-    const updated = await storage.updateUserPassword(req.params.id, hashed);
+    const updated = await storage.updateUserPassword(getParamString(req.params.id), hashed);
     if (!updated) return res.status(404).json({ message: "User not found" });
     res.json({ ok: true });
   });
@@ -140,28 +153,28 @@ export async function registerRoutes(
   });
 
   app.get("/api/events/:id", async (req, res) => {
-    const event = await storage.getEvent(req.params.id);
+    const event = await storage.getEvent(getParamString(req.params.id));
     if (!event) return res.status(404).json({ message: "Event not found" });
     res.json(event);
   });
 
-  app.post("/api/events", async (req, res) => {
+  app.post("/api/events", requireAuth, async (req, res) => {
     const parsed = insertEventSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ message: parsed.error.message });
     const created = await storage.createEvent(parsed.data);
     res.status(201).json(created);
   });
 
-  app.patch("/api/events/:id", async (req, res) => {
+  app.patch("/api/events/:id", requireAuth, async (req, res) => {
     const parsed = insertEventSchema.partial().safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ message: parsed.error.message });
-    const updated = await storage.updateEvent(req.params.id, parsed.data);
+    const updated = await storage.updateEvent(getParamString(req.params.id), parsed.data);
     if (!updated) return res.status(404).json({ message: "Event not found" });
     res.json(updated);
   });
 
-  app.delete("/api/events/:id", async (req, res) => {
-    await storage.deleteEvent(req.params.id);
+  app.delete("/api/events/:id", requireAuth, async (req, res) => {
+    await storage.deleteEvent(getParamString(req.params.id));
     res.status(204).send();
   });
 
@@ -171,7 +184,7 @@ export async function registerRoutes(
     res.json(data);
   });
 
-  app.post("/api/audiences", async (req, res) => {
+  app.post("/api/audiences", requireAuth, async (req, res) => {
     const parsed = insertAudienceSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ message: parsed.error.message });
     try {
@@ -183,11 +196,11 @@ export async function registerRoutes(
     }
   });
 
-  app.patch("/api/audiences/:id", async (req, res) => {
+  app.patch("/api/audiences/:id", requireAuth, async (req, res) => {
     const parsed = insertAudienceSchema.partial().safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ message: parsed.error.message });
     try {
-      const updated = await storage.updateAudience(req.params.id, parsed.data);
+      const updated = await storage.updateAudience(getParamString(req.params.id), parsed.data);
       if (!updated) return res.status(404).json({ message: "Audience not found" });
       res.json(updated);
     } catch (err: any) {
@@ -196,8 +209,8 @@ export async function registerRoutes(
     }
   });
 
-  app.delete("/api/audiences/:id", async (req, res) => {
-    await storage.deleteAudience(req.params.id);
+  app.delete("/api/audiences/:id", requireAuth, async (req, res) => {
+    await storage.deleteAudience(getParamString(req.params.id));
     res.status(204).send();
   });
 
@@ -207,7 +220,7 @@ export async function registerRoutes(
     res.json(data);
   });
 
-  app.post("/api/topics", async (req, res) => {
+  app.post("/api/topics", requireAuth, async (req, res) => {
     const parsed = insertTopicSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ message: parsed.error.message });
     try {
@@ -219,11 +232,11 @@ export async function registerRoutes(
     }
   });
 
-  app.patch("/api/topics/:id", async (req, res) => {
+  app.patch("/api/topics/:id", requireAuth, async (req, res) => {
     const parsed = insertTopicSchema.partial().safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ message: parsed.error.message });
     try {
-      const updated = await storage.updateTopic(req.params.id, parsed.data);
+      const updated = await storage.updateTopic(getParamString(req.params.id), parsed.data);
       if (!updated) return res.status(404).json({ message: "Topic not found" });
       res.json(updated);
     } catch (err: any) {
@@ -232,8 +245,8 @@ export async function registerRoutes(
     }
   });
 
-  app.delete("/api/topics/:id", async (req, res) => {
-    await storage.deleteTopic(req.params.id);
+  app.delete("/api/topics/:id", requireAuth, async (req, res) => {
+    await storage.deleteTopic(getParamString(req.params.id));
     res.status(204).send();
   });
 
@@ -243,21 +256,21 @@ export async function registerRoutes(
     res.json(data);
   });
 
-  app.post("/api/notices", async (req, res) => {
+  app.post("/api/notices", requireAuth, async (req, res) => {
     const parsed = insertNoticeSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ message: parsed.error.message });
     const created = await storage.createNotice(parsed.data);
     res.status(201).json(created);
   });
 
-  app.patch("/api/notices/:id/resolve", async (req, res) => {
-    const updated = await storage.resolveNotice(req.params.id);
+  app.patch("/api/notices/:id/resolve", requireAuth, async (req, res) => {
+    const updated = await storage.resolveNotice(getParamString(req.params.id));
     if (!updated) return res.status(404).json({ message: "Notice not found" });
     res.json(updated);
   });
 
   // ─── Campaign CSV Upload ────────────────────────────────────────────────
-  app.post("/api/campaigns/upload", upload.single("file"), async (req, res) => {
+  app.post("/api/campaigns/upload", requireAuth, upload.single("file"), async (req, res) => {
     if (!req.file) return res.status(400).json({ message: "No file uploaded" });
 
     const text = req.file.buffer.toString("utf-8");
@@ -343,6 +356,4 @@ export async function registerRoutes(
       errors,
     });
   });
-
-  return httpServer;
 }
