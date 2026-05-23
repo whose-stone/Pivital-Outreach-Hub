@@ -1,5 +1,5 @@
-import { db } from "./db";
-import { events, audiences, topics, users, notices } from "../shared/schema";
+import { db } from "./db.js";
+import { events, audiences, topics, users, notices } from "../shared/schema.js";
 import { eq } from "drizzle-orm";
 import type {
   InsertEvent, Event,
@@ -7,7 +7,7 @@ import type {
   InsertTopic, Topic,
   InsertUser, User,
   InsertNotice, Notice,
-} from "../shared/schema";
+} from "../shared/schema.js";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;

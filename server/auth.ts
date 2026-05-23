@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { storage } from "./storage";
+import { storage } from "./storage.js";
 
 export function hashPassword(password: string): Promise<string> {
   return new Promise((resolve, reject) => {

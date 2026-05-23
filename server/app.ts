@@ -1,8 +1,8 @@
 import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
-import { registerRoutes } from "./routes";
-import { pool } from "./db";
+import { registerRoutes } from "./routes.js";
+import { pool } from "./db.js";
 
 declare module "http" {
   interface IncomingMessage {
