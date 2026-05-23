@@ -145,14 +145,14 @@ export async function registerRoutes(
     res.json(event);
   });
 
-  app.post("/api/events", async (req, res) => {
+  app.post("/api/events", requireAuth, async (req, res) => {
     const parsed = insertEventSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ message: parsed.error.message });
     const created = await storage.createEvent(parsed.data);
     res.status(201).json(created);
   });
 
-  app.patch("/api/events/:id", async (req, res) => {
+  app.patch("/api/events/:id", requireAuth, async (req, res) => {
     const parsed = insertEventSchema.partial().safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ message: parsed.error.message });
     const updated = await storage.updateEvent(req.params.id, parsed.data);
@@ -160,7 +160,7 @@ export async function registerRoutes(
     res.json(updated);
   });
 
-  app.delete("/api/events/:id", async (req, res) => {
+  app.delete("/api/events/:id", requireAuth, async (req, res) => {
     await storage.deleteEvent(req.params.id);
     res.status(204).send();
   });
@@ -171,7 +171,7 @@ export async function registerRoutes(
     res.json(data);
   });
 
-  app.post("/api/audiences", async (req, res) => {
+  app.post("/api/audiences", requireAuth, async (req, res) => {
     const parsed = insertAudienceSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ message: parsed.error.message });
     try {
@@ -183,7 +183,7 @@ export async function registerRoutes(
     }
   });
 
-  app.patch("/api/audiences/:id", async (req, res) => {
+  app.patch("/api/audiences/:id", requireAuth, async (req, res) => {
     const parsed = insertAudienceSchema.partial().safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ message: parsed.error.message });
     try {
@@ -196,7 +196,7 @@ export async function registerRoutes(
     }
   });
 
-  app.delete("/api/audiences/:id", async (req, res) => {
+  app.delete("/api/audiences/:id", requireAuth, async (req, res) => {
     await storage.deleteAudience(req.params.id);
     res.status(204).send();
   });
@@ -207,7 +207,7 @@ export async function registerRoutes(
     res.json(data);
   });
 
-  app.post("/api/topics", async (req, res) => {
+  app.post("/api/topics", requireAuth, async (req, res) => {
     const parsed = insertTopicSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ message: parsed.error.message });
     try {
@@ -219,7 +219,7 @@ export async function registerRoutes(
     }
   });
 
-  app.patch("/api/topics/:id", async (req, res) => {
+  app.patch("/api/topics/:id", requireAuth, async (req, res) => {
     const parsed = insertTopicSchema.partial().safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ message: parsed.error.message });
     try {
@@ -232,7 +232,7 @@ export async function registerRoutes(
     }
   });
 
-  app.delete("/api/topics/:id", async (req, res) => {
+  app.delete("/api/topics/:id", requireAuth, async (req, res) => {
     await storage.deleteTopic(req.params.id);
     res.status(204).send();
   });
@@ -243,21 +243,21 @@ export async function registerRoutes(
     res.json(data);
   });
 
-  app.post("/api/notices", async (req, res) => {
+  app.post("/api/notices", requireAuth, async (req, res) => {
     const parsed = insertNoticeSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ message: parsed.error.message });
     const created = await storage.createNotice(parsed.data);
     res.status(201).json(created);
   });
 
-  app.patch("/api/notices/:id/resolve", async (req, res) => {
+  app.patch("/api/notices/:id/resolve", requireAuth, async (req, res) => {
     const updated = await storage.resolveNotice(req.params.id);
     if (!updated) return res.status(404).json({ message: "Notice not found" });
     res.json(updated);
   });
 
   // ─── Campaign CSV Upload ────────────────────────────────────────────────
-  app.post("/api/campaigns/upload", upload.single("file"), async (req, res) => {
+  app.post("/api/campaigns/upload", requireAuth, upload.single("file"), async (req, res) => {
     if (!req.file) return res.status(400).json({ message: "No file uploaded" });
 
     const text = req.file.buffer.toString("utf-8");
