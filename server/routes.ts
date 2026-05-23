@@ -1,9 +1,9 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import multer from "multer";
 import rateLimit from "express-rate-limit";
-import { storage } from "./storage";
-import { hashPassword, verifyPassword } from "./auth";
-import { insertEventSchema, insertAudienceSchema, insertTopicSchema, insertNoticeSchema } from "../shared/schema";
+import { storage } from "./storage.js";
+import { hashPassword, verifyPassword } from "./auth.js";
+import { insertEventSchema, insertAudienceSchema, insertTopicSchema, insertNoticeSchema } from "../shared/schema.js";
 import { z } from "zod";
 
 function getParamString(value: string | string[] | undefined): string {

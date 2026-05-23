@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "http";
-import { createApp } from "../server/app";
-import { seedAdminUser } from "../server/auth";
+import { createApp } from "../server/app.js";
+import { seedAdminUser } from "../server/auth.js";
 
 const app = createApp();
 
