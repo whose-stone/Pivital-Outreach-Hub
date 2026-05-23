@@ -1,6 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import multer from "multer";
+import rateLimit from "express-rate-limit";
 import { storage } from "./storage";
 import { hashPassword, verifyPassword } from "./auth";
 import { insertEventSchema, insertAudienceSchema, insertTopicSchema, insertNoticeSchema } from "@shared/schema";
@@ -23,6 +24,14 @@ async function requireAdmin(req: Request, res: Response, next: NextFunction) {
   }
   next();
 }
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many login attempts, please try again later." },
+});
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -83,7 +92,7 @@ export async function registerRoutes(
     res.json(safeUser);
   });
 
-  app.post("/api/login", async (req, res) => {
+  app.post("/api/login", loginLimiter, async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) return res.status(400).json({ message: "Username and password required" });
     const user = await storage.getUserByUsername(username);
@@ -96,7 +105,10 @@ export async function registerRoutes(
   });
 
   app.post("/api/logout", (req, res) => {
-    req.session.destroy(() => res.json({ ok: true }));
+    req.session.destroy(() => {
+      res.clearCookie("connect.sid");
+      res.json({ ok: true });
+    });
   });
 
   // ─── User Management (Admin only) ──────────────────────────────────────
