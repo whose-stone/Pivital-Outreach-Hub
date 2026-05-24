@@ -31,7 +31,7 @@ export function createApp(): Express {
   const app = express();
   const isProduction = process.env.NODE_ENV === "production";
 
-  // Trust the TLS-terminating proxy (Vercel/Replit) so secure cookies are sent.
+  // Trust the TLS-terminating proxy (Vercel) so secure cookies are sent.
   app.set("trust proxy", 1);
 
   app.use(
